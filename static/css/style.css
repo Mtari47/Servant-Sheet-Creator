@@ -1,0 +1,178 @@
+:root {
+  --bg: #f5f6f8;
+  --text: #111;
+  --header-bg: #ffffff;
+  --header-border: #d0d0d0;
+  --link: #0a66c2;
+  --panel-bg: #ffffff;
+  --panel-border: #dcdcdc;
+  --input-bg: #ffffff;
+  --input-border: #c8c8c8;
+  --btn-bg: #f3f3f3;
+  --btn-border: #c9c9c9;
+  --btn-text: #111;
+  --btn-hover: #e8e8e8;
+  --sheet-bg: #ffffff;
+  --sheet-text: #222222;
+  --sheet-border: #cccccc;
+  --table-header-bg: #222222;
+  --table-header-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg: #111111;
+  --text: #eeeeee;
+  --header-bg: #222222;
+  --header-border: #444444;
+  --link: #8ab4f8;
+  --panel-bg: #1d1d1f;
+  --panel-border: #333333;
+  --input-bg: #2a2a2d;
+  --input-border: #444444;
+  --btn-bg: #444444;
+  --btn-border: #666666;
+  --btn-text: #eeeeee;
+  --btn-hover: #555555;
+  --sheet-bg: #1a1a1c; /* dark sheet surface */
+  --sheet-text: #e3e3e3;
+  --sheet-border: #2e2e31;
+  --table-header-bg: #2e2e31;
+  --table-header-text: #ffffff;
+}
+
+body { font-family: system-ui, Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.4; }
+.site-header { background:var(--header-bg); padding:0.75rem 1rem; border-bottom:2px solid var(--header-border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+.site-header a { color:var(--text); text-decoration:none; }
+.header-actions { display:flex; gap:0.5rem; }
+.theme-toggle { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.4rem 0.7rem; border-radius:4px; cursor:pointer; }
+.theme-toggle:hover { background:var(--btn-hover); }
+.fgo-toggle { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.4rem 0.7rem; border-radius:4px; cursor:pointer; }
+.fgo-toggle.active { outline:2px solid var(--link); }
+.fgo-toggle:hover { background:var(--btn-hover); }
+/* FGO mode sections */
+[data-fgo-section] h3 { margin-top:1.2rem; }
+.fgo-stats-block, .fgo-stats, .card-list-picker, .hit-counts { margin-top:1rem; }
+.fgo-stats-block table, .fgo-stats table { width:100%; border-collapse:collapse; margin-bottom:0.6rem; }
+.fgo-stats-table th, .fgo-stats-table td { border:1px solid var(--panel-border); padding:0.35rem 0.5rem; font-size:0.75rem; }
+.fgo-traits { font-size:0.75rem; margin:0.4rem 0 0.6rem; }
+.fgo-card-list img.card-list-img { max-height:70px; display:block; margin-top:0.4rem; }
+.fgo-hits { font-size:0.75rem; margin-top:0.4rem; }
+.levels-table, .skill-levels, .np-levels { width:100%; border-collapse:collapse; margin-top:0.5rem; font-size:0.7rem; }
+.levels-table th, .levels-table td, .skill-levels th, .skill-levels td, .np-levels th, .np-levels td { border:1px solid var(--panel-border); padding:0.3rem; text-align:center; }
+.levels-table thead th { background:var(--panel-border); color:var(--text); }
+.skill-levels thead th, .np-levels thead th { background:var(--panel-border); color:var(--text); }
+.gameplay, .np-effects { font-size:0.7rem; margin-top:0.35rem; opacity:0.85; }
+.selected-card-list img { border:1px solid var(--panel-border); border-radius:4px; background:var(--input-bg); }
+main { max-width:1100px; margin:0 auto; padding:1rem; }
+
+.servant-form { display:grid; gap:1rem; }
+.panel { background:var(--panel-bg); padding:1rem 1rem 1.25rem; border:1px solid var(--panel-border); border-radius:6px; }
+.panel h2 { margin-top:0; font-size:1.2rem; letter-spacing:0.5px; }
+.grid.two { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.5rem; }
+.grid.six { display:grid; grid-template-columns:repeat(6,1fr); gap:0.5rem; }
+.grid.three { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.5rem; }
+.param-grid input { text-align:center; }
+label { display:block; font-size:0.85rem; }
+input[type=text], input[type=url], textarea { width:100%; box-sizing:border-box; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text); padding:0.4rem 0.5rem; border-radius:4px; }
+textarea { resize:vertical; }
+.add-item, .form-actions button, .export-bar button { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.5rem 0.9rem; cursor:pointer; border-radius:4px; font-size:0.85rem; }
+.add-item:hover, .form-actions button:hover, .export-bar button:hover { background:var(--btn-hover); }
+.form-actions { text-align:right; }
+.flash-container { margin-bottom:1rem; }
+.flash { padding:0.5rem 0.75rem; border-radius:4px; margin-bottom:0.4rem; font-size:0.8rem; }
+.flash.error { background:#5a1a1a; }
+.flash.warning { background:#5a3a1a; }
+
+.repeater .items > .item { display:flex; gap:0.5rem; margin-bottom:0.5rem; }
+.repeater .items input { flex:1; }
+.repeater .items .remove { background:#2c2c2f; border:1px solid #555; color:#bbb; border-radius:4px; cursor:pointer; }
+.repeater .items .remove:hover { background:#3a3a3d; }
+
+.sheet { background:var(--sheet-bg); color:var(--sheet-text); padding:1rem 1.5rem; border:1px solid var(--sheet-border); border-radius:8px; box-shadow:0 0 0 4px rgba(0,0,0,0.8), 0 2px 10px rgba(0,0,0,0.6); max-width:1000px; margin:0 auto; transition:background .3s,color .3s,border-color .3s,box-shadow .3s; }
+.sheet-header { display:flex; gap:1rem; }
+.sheet-image img { max-width:260px; border:2px solid var(--panel-border); border-radius:6px; background:var(--panel-bg); }
+.servant-name { margin:0 0 0.5rem; font-size:2rem; }
+.param-table { width:100%; border-collapse:collapse; }
+.param-table th, .param-table td { border:1px solid var(--panel-border); padding:0.4rem; text-align:center; transition:background .3s,color .3s,border-color .3s; }
+.param-table th { background:var(--table-header-bg); color:var(--table-header-text); }
+.biography { white-space:pre-wrap; }
+.export-bar { margin-bottom:1rem; display:flex; gap:0.5rem; }
+
+/* Conversation list display */
+.conversation-section { margin-top:1.5rem; }
+.conversation-list { display:flex; flex-direction:column; gap:0.75rem; }
+.conversation-item { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:6px; padding:0.6rem 0.75rem; }
+.conversation-item .conversation-title { margin-bottom:0.3rem; font-size:0.9rem; letter-spacing:0.5px; color:var(--text); }
+.conversation-item .conversation-text { white-space:pre-wrap; font-size:0.85rem; line-height:1.35; }
+.item.pair { align-items:flex-start; }
+.item.pair .conv-title { flex:0 0 220px; }
+.item.pair .conv-text { background:var(--input-bg); border:1px solid var(--input-border); color:var(--text); padding:0.4rem 0.5rem; border-radius:4px; }
+
+/* Skills modal & list */
+.skills-panel .skill-items { display:flex; flex-direction:column; gap:0.6rem; margin-top:0.5rem; }
+.skill-item { display:flex; gap:0.75rem; background:var(--panel-bg); border:1px solid var(--panel-border); padding:0.6rem 0.75rem; border-radius:6px; align-items:flex-start; position:relative; }
+.skill-item .icon img { width:40px; height:40px; object-fit:contain; display:block; }
+.skill-item .text .title { font-size:0.9rem; margin-bottom:0.25rem; }
+.skill-item .text .desc { font-size:0.78rem; line-height:1.3; white-space:pre-wrap; }
+.skill-item .remove { position:absolute; top:4px; right:6px; background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); width:24px; height:24px; border-radius:4px; cursor:pointer; }
+.skill-item .remove:hover { background:var(--btn-hover); }
+
+/* Modal */
+.modal.hidden { display:none; }
+.modal { position:fixed; inset:0; z-index:100; }
+.modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:saturate(160%) blur(4px); }
+.modal-dialog { position:relative; background:var(--panel-bg); color:var(--text); width:min(640px, 95%); margin:6vh auto; padding:1rem 1.1rem 1.2rem; border:1px solid var(--panel-border); border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,0.55); display:flex; flex-direction:column; gap:0.9rem; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; }
+.modal-header h3 { margin:0; font-size:1.15rem; }
+.modal-close { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); width:32px; height:32px; border-radius:6px; cursor:pointer; }
+.modal-close:hover { background:var(--btn-hover); }
+.modal-body label { font-size:0.8rem; display:block; margin-bottom:0.65rem; }
+.modal-body input[type=text], .modal-body textarea { background:var(--input-bg); border:1px solid var(--input-border); color:var(--text); width:100%; padding:0.45rem 0.55rem; border-radius:6px; box-sizing:border-box; }
+.modal-actions { display:flex; justify-content:flex-end; gap:0.6rem; }
+.modal-actions .btn { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.5rem 0.9rem; border-radius:6px; cursor:pointer; font-size:0.8rem; }
+.modal-actions .btn.primary { background:var(--link); border-color:var(--link); color:#fff; }
+.modal-actions .btn:hover { background:var(--btn-hover); }
+.modal-actions .btn.primary:hover { filter:brightness(1.1); }
+
+.image-picker-header { font-size:0.8rem; margin-bottom:0.35rem; letter-spacing:0.5px; }
+/* Card list modal grid (thumbnails, not full-width) */
+.image-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px,1fr)); gap:0.65rem; max-height:320px; overflow:auto; padding:0.5rem; border:1px solid var(--panel-border); border-radius:8px; background:var(--panel-bg); }
+.image-option { background:var(--input-bg); border:1px solid var(--input-border); padding:6px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:box-shadow .15s, border-color .15s, transform .15s; }
+.image-option img { width:100%; height:100%; max-width:100px; max-height:100px; object-fit:contain; image-rendering:auto; }
+.image-option:hover { box-shadow:0 0 0 3px rgba(0,0,0,0.18); border-color:var(--link); }
+.image-option.selected { outline:3px solid var(--link); border-color:var(--link); transform:translateY(-2px); }
+
+/* Only in the Select Card List modal: make thumbnails span the modal width */
+#card-list-modal .image-grid { display:flex; flex-direction:column; gap:0.75rem; max-height:65vh; overflow:auto; padding:0.75rem; }
+#card-list-modal .image-option { width:100%; padding:8px; border-radius:10px; }
+#card-list-modal .image-option img { width:100%; height:auto; max-width:none; max-height:none; object-fit:contain; }
+.image-option.selected { outline:2px solid var(--link); border-color:var(--link); }
+
+/* Sheet skills */
+.skills-list { display:flex; flex-direction:column; gap:0.6rem; }
+.skill-card { display:flex; gap:0.75rem; background:var(--panel-bg); border:1px solid var(--panel-border); padding:0.6rem 0.75rem; border-radius:6px; align-items:flex-start; }
+.skill-card .icon img { width:46px; height:46px; object-fit:contain; display:block; }
+.skill-card .info .title { margin-bottom:0.25rem; font-size:0.9rem; }
+.skill-card .info .desc { font-size:0.78rem; line-height:1.3; white-space:pre-wrap; }
+.nps-list { display:flex; flex-direction:column; gap:0.7rem; }
+.np-card { display:flex; gap:0.75rem; background:var(--panel-bg); border:1px solid var(--panel-border); padding:0.7rem 0.85rem; border-radius:6px; align-items:flex-start; }
+.np-card .np-icon img { width:70px; height:70px; object-fit:contain; display:block; border:1px solid var(--panel-border); border-radius:4px; background:var(--input-bg); }
+.np-card .np-info .np-title-rank { font-size:0.95rem; margin-bottom:0.35rem; }
+.np-card .np-info .np-desc { font-size:0.8rem; line-height:1.35; white-space:pre-wrap; }
+
+/* Noble Phantasms */
+.nps-panel .np-items { display:flex; flex-direction:column; gap:0.7rem; margin-top:0.5rem; }
+.np-item { display:flex; gap:0.75rem; background:var(--panel-bg); border:1px solid var(--panel-border); padding:0.7rem 0.85rem; border-radius:6px; position:relative; align-items:flex-start; }
+.np-item .np-icon img { width:70px; height:70px; object-fit:contain; display:block; border:1px solid var(--panel-border); border-radius:4px; background:var(--input-bg); }
+.np-item .np-text { flex:1; min-width:0; }
+.np-item .np-title-rank { font-size:0.95rem; margin-bottom:0.35rem; letter-spacing:0.5px; }
+.np-item .np-desc { font-size:0.78rem; line-height:1.35; white-space:pre-wrap; }
+.np-item .remove { position:absolute; top:4px; right:6px; background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); width:24px; height:24px; border-radius:4px; cursor:pointer; }
+.np-item .remove:hover { background:var(--btn-hover); }
+.uploaded-placeholder { font-size:0.7rem; opacity:0.7; }
+
+@media print {
+  body { background:#fff; color:#000; }
+  .no-print, .site-header { display:none !important; }
+  .sheet { box-shadow:none; border:1px solid #000; }
+}

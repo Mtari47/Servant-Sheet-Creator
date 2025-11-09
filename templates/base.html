@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Servant Sheet Creator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <!-- Minimal reset -->
+  <style>
+    html, body { margin: 0; padding: 0; }
+  </style>
+  <script>
+    // Apply saved theme ASAP to avoid flash
+    (function(){
+      try {
+        var t = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e) {}
+    })();
+  </script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title"><a href="{{ url_for('create_servant') }}">Servant Sheet Creator</a></h1>
+    <div class="header-actions">
+      <button id="fgo-toggle" class="fgo-toggle" type="button" aria-label="Toggle FGO Mode">FGO: Off</button>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">🌙 Dark</button>
+    </div>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/fgo.js') }}"></script>
+  {% block body_end %}{% endblock %}
+</body>
+</html>

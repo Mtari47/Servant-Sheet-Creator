@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block head_extra %}
+<script>
+</script>
+{% endblock %}
+{% block content %}
+<form id="servant-form" action="" method="post" enctype="multipart/form-data" class="servant-form">
+  <section class="panel">
+    <h2>Basic Information</h2>
+    <div class="grid two">
+      <label>Name<br><input type="text" name="name" required></label>
+      <label>Gender<br><input type="text" name="gender"></label>
+      <label>Class<br><input type="text" name="servant_class"></label>
+      <label>Alignment<br><input type="text" name="alignment"></label>
+      <label>Hidden Attribute<br><input type="text" name="hidden_attribute"></label>
+    </div>
+    <label>Biography<br><textarea name="biography" rows="5"></textarea></label>
+  </section>
+
+  <section class="panel">
+    <h2>Image</h2>
+    <div class="image-mode">
+      <label><input type="radio" name="image_mode" value="url" checked> From URL</label>
+      <label><input type="radio" name="image_mode" value="upload"> Upload</label>
+    </div>
+    <div id="image-url-input">
+      <input type="url" name="image_url" placeholder="https://example.com/image.png" style="width:100%" />
+    </div>
+    <div id="image-file-input" style="display:none;">
+      <input type="file" name="image_file" accept="image/*" />
+    </div>
+    <div class="preview-wrapper">
+      <img id="image-preview" alt="Preview" style="max-width:200px; display:none; margin-top:0.5rem;" />
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Parameters</h2>
+    <div class="grid six param-grid">
+      <label>STR<br><input name="param_strength" placeholder="A" maxlength="2"></label>
+      <label>END<br><input name="param_endurance" placeholder="B" maxlength="2"></label>
+      <label>AGI<br><input name="param_agility" placeholder="B" maxlength="2"></label>
+      <label>MANA<br><input name="param_mana" placeholder="A" maxlength="2"></label>
+      <label>LUCK<br><input name="param_luck" placeholder="C" maxlength="2"></label>
+      <label>NP<br><input name="param_np" placeholder="EX" maxlength="3"></label>
+    </div>
+    <div class="fgo-stats" data-fgo-section style="display:none; margin-top:1rem;">
+      <h3>FGO Stats</h3>
+      <div class="grid four fgo-main-stats">
+        <label>ATK (Min)<br><input name="fgo_atk_min" placeholder="1000"></label>
+        <label>ATK (Max)<br><input name="fgo_atk_max" placeholder="12000"></label>
+        <label>HP (Min)<br><input name="fgo_hp_min" placeholder="1500"></label>
+        <label>HP (Max)<br><input name="fgo_hp_max" placeholder="15000"></label>
+      </div>
+      <div class="grid four fgo-grail-stats">
+        <label>Lv.100 Grail ATK<br><input name="fgo_grail_100_atk" placeholder=""></label>
+        <label>Lv.100 Grail HP<br><input name="fgo_grail_100_hp" placeholder=""></label>
+        <label>Lv.120 Grail ATK<br><input name="fgo_grail_120_atk" placeholder=""></label>
+        <label>Lv.120 Grail HP<br><input name="fgo_grail_120_hp" placeholder=""></label>
+      </div>
+      <div class="grid five fgo-extra-stats">
+        <label>Star Absorption<br><input name="fgo_star_absorption" placeholder=""></label>
+        <label>Star Generation %<br><input name="fgo_star_generation" placeholder=""></label>
+        <label>NP Charge Attack %<br><input name="fgo_np_charge_attack" placeholder=""></label>
+        <label>NP Charge DEF %<br><input name="fgo_np_charge_def" placeholder=""></label>
+        <label>Death Chance %<br><input name="fgo_death_chance" placeholder=""></label>
+      </div>
+      <label>Traits<br><textarea name="fgo_traits" rows="3" placeholder="Humanoid, Divine, Dragon..." ></textarea></label>
+      <div class="card-list-picker" data-fgo-section>
+        <h3>Card List</h3>
+        <button type="button" id="open-card-list-modal" class="add-item">Select Card List</button>
+        <div id="selected-card-list" class="selected-card-list"></div>
+      </div>
+      <div class="hit-counts" data-fgo-section>
+        <h3>Hit Counts</h3>
+        <div class="grid four">
+          <label>Quick Hits<br><input name="fgo_hits_quick" placeholder=""> </label>
+          <label>Arts Hits<br><input name="fgo_hits_arts" placeholder=""> </label>
+          <label>Buster Hits<br><input name="fgo_hits_buster" placeholder=""> </label>
+          <label>Extra Hits<br><input name="fgo_hits_extra" placeholder=""> </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel repeater" data-pair="true" data-title-name="conversation_title[]" data-text-name="conversation_text[]">
+    <h2>Conversation Lines</h2>
+    <div class="items"></div>
+    <button type="button" class="add-item">+ Add Conversation</button>
+  </section>
+
+  <section class="panel skills-panel" id="class-skills" data-scope="class">
+    <h2>Class Skills</h2>
+    <div class="skill-items"></div>
+    <button type="button" class="open-skill-modal">+ Add Class Skill</button>
+    <div class="hidden-inputs"></div>
+    <div class="fgo-enhanced" data-fgo-section style="display:none;">
+      <p class="helper">Passive Skills may include gameplay notes when FGO Mode is active.</p>
+    </div>
+  </section>
+
+  <section class="panel skills-panel" id="personal-skills" data-scope="personal">
+    <h2>Personal Skills</h2>
+    <div class="skill-items"></div>
+    <button type="button" class="open-skill-modal">+ Add Personal Skill</button>
+    <div class="hidden-inputs"></div>
+    <div class="fgo-enhanced" data-fgo-section style="display:none;">
+      <p class="helper">Active Skills can have a gameplay textbox and level scaling table (1–10).</p>
+    </div>
+  </section>
+
+  <section class="panel nps-panel" id="noble-phantasms">
+    <h2>Noble Phantasm(s)</h2>
+    <div class="np-items"></div>
+    <button type="button" class="open-np-modal">+ Add Noble Phantasm</button>
+    <div class="hidden-inputs"></div>
+  </section>
+
+  <div class="form-actions">
+    <button type="submit">Generate Sheet</button>
+  </div>
+</form>
+<!-- Skill Modal (outside the form to avoid submitting its inputs) -->
+<div id="skill-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-close="true"></div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-header">
+      <h3>Add Skill</h3>
+      <button type="button" class="modal-close" aria-label="Close" data-close="true">×</button>
+    </div>
+    <div class="modal-body">
+      <label>Title<br><input type="text" id="skill-title" placeholder="Skill Title"></label>
+      <label>Description<br><textarea id="skill-description" rows="4" placeholder="Describe the skill"></textarea></label>
+      <div class="image-picker">
+        <div class="image-picker-header">Choose an icon</div>
+        <div id="skill-image-grid" class="image-grid" aria-label="Skill images grid"></div>
+      </div>
+      <div class="fgo-gameplay-field" data-fgo-only style="display:none;">
+        <label>Gameplay Info<br><textarea id="skill-gameplay" rows="3" placeholder="In-game effects, cooldown, etc."></textarea></label>
+      </div>
+      <div class="fgo-levels-field" data-fgo-only style="display:none;">
+        <h4>Scaling (Levels 1–10)</h4>
+        <table class="levels-table" id="skill-levels-table" aria-label="Skill Levels">
+          <thead><tr><th>Level</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr></thead>
+          <tbody id="skill-levels-body">
+            <tr>
+              <th contenteditable="true">Values</th>
+              <td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:0.5rem;"><button type="button" id="skill-add-row" class="add-item">+ Add Line</button></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn" data-close="true">Cancel</button>
+      <button type="button" class="btn primary" id="skill-save">Save Skill</button>
+    </div>
+  </div>
+  <script id="skill-images-data" type="application/json">{{ skill_images|tojson }}</script>
+</div>
+<!-- Noble Phantasm Modal -->
+<div id="np-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-close="true"></div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-header">
+      <h3>Add Noble Phantasm</h3>
+      <button type="button" class="modal-close" aria-label="Close" data-close="true">×</button>
+    </div>
+    <div class="modal-body">
+      <label>Title<br><input type="text" id="np-title" placeholder="NP Title"></label>
+      <label>Rank<br><input type="text" id="np-rank" placeholder="EX / A+ / B"></label>
+      <div class="image-mode np-image-mode">
+        <label><input type="radio" name="np_image_mode" value="url" checked> From URL</label>
+        <label><input type="radio" name="np_image_mode" value="upload"> Upload</label>
+      </div>
+      <div id="np-image-url-wrapper">
+        <input type="url" id="np-image-url" placeholder="https://example.com/np.png" style="width:100%">
+      </div>
+      <div id="np-image-file-wrapper" style="display:none;">
+        <input type="file" id="np-image-file" accept="image/*" />
+      </div>
+      <label>Description<br><textarea id="np-description" rows="5" placeholder="Describe the Noble Phantasm"></textarea></label>
+      <div class="preview-wrapper"><img id="np-image-preview" alt="Preview" style="max-width:180px; display:none; margin-top:0.5rem;" /></div>
+      <div class="fgo-np-effects" data-fgo-only style="display:none;">
+        <label>NP Effects<br><textarea id="np-effects" rows="4" placeholder="Damage multiplier, buffs, debuffs, etc."></textarea></label>
+        <h4>NP Scaling (Levels 1–5)</h4>
+        <table class="levels-table" id="np-levels-table" aria-label="NP Levels">
+          <thead><tr><th>Level</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+          <tbody><tr><th>Values</th>
+            <td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>
+          </tr></tbody>
+          <tfoot><tr><th>Overcharge Effect</th><td colspan="5" contenteditable="true"></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn" data-close="true">Cancel</button>
+      <button type="button" class="btn primary" id="np-save">Save NP</button>
+    </div>
+  </div>
+</div>
+<!-- Card List Modal (separate, not nested inside other modals) -->
+<div id="card-list-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-close="true"></div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-header">
+      <h3>Select Card List</h3>
+      <button type="button" class="modal-close" aria-label="Close" data-close="true">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="card-list-grid" class="image-grid" aria-label="Card list grid"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn" data-close="true">Cancel</button>
+      <button type="button" class="btn primary" id="card-list-save">Select</button>
+    </div>
+  </div>
+</div>
+<script id="card-list-images-data" type="application/json">{{ card_list_images|tojson }}</script>
+{% endblock %}
+{% block body_end %}
+<script src="{{ url_for('static', filename='js/form.js') }}" ></script>
+<script src="{{ url_for('static', filename='js/skills.js') }}"></script>
+<script src="{{ url_for('static', filename='js/nps.js') }}"></script>
+<script src="{{ url_for('static', filename='js/card_list.js') }}"></script>
+{% endblock %}

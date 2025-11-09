@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block head_extra %}
+<link rel="preload" as="style" href="{{ url_for('static', filename='css/style.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="export-bar no-print">
+  <button id="download-pdf">Download PDF</button>
+  <button id="download-png">Download PNG</button>
+  <button id="download-jpeg">Download JPEG</button>
+  <button id="create-another" type="button">Create Another</button>
+</div>
+
+<div id="sheet" class="sheet">
+  <div class="sheet-header">
+    {% if servant.image_url %}
+      <div class="sheet-image"><img src="{{ servant.image_url }}" alt="Servant Image" /></div>
+    {% endif %}
+    <div class="sheet-basic">
+      <h2 class="servant-name">{{ servant.name or 'Unnamed Servant' }}</h2>
+      <div class="meta grid three">
+        <div><strong>Gender:</strong> {{ servant.gender }}</div>
+        <div><strong>Class:</strong> {{ servant.servant_class }}</div>
+        <div><strong>Alignment:</strong> {{ servant.alignment }}</div>
+        <div><strong>Hidden Attribute:</strong> {{ servant.hidden_attribute }}</div>
+      </div>
+    </div>
+  </div>
+  <section>
+    <h3>Biography</h3>
+  <p class="biography">{{ servant.biography }}</p>
+  </section>
+  <section class="parameters">
+    <h3>Parameters</h3>
+    <table class="param-table">
+      <thead><tr><th>STR</th><th>END</th><th>AGI</th><th>MANA</th><th>LUCK</th><th>NP</th></tr></thead>
+      <tbody><tr>
+        <td>{{ servant.parameters.strength }}</td>
+        <td>{{ servant.parameters.endurance }}</td>
+        <td>{{ servant.parameters.agility }}</td>
+        <td>{{ servant.parameters.mana }}</td>
+        <td>{{ servant.parameters.luck }}</td>
+        <td>{{ servant.parameters.np }}</td>
+      </tr></tbody>
+    </table>
+    {% if servant.fgo_mode %}
+    <div class="fgo-stats-block">
+      <h4>FGO Stats</h4>
+      <table class="fgo-stats-table">
+        <tbody>
+          <tr><th>ATK</th><td>{{ servant.fgo.atk_min }} - {{ servant.fgo.atk_max }}</td><th>HP</th><td>{{ servant.fgo.hp_min }} - {{ servant.fgo.hp_max }}</td></tr>
+          <tr><th>Lv.100 Grail</th><td>{{ servant.fgo.grail_100_atk }} / {{ servant.fgo.grail_100_hp }}</td><th>Lv.120 Grail</th><td>{{ servant.fgo.grail_120_atk }} / {{ servant.fgo.grail_120_hp }}</td></tr>
+          <tr><th>Star Absorption</th><td>{{ servant.fgo.star_absorption }}</td><th>Star Generation %</th><td>{{ servant.fgo.star_generation }}</td></tr>
+          <tr><th>NP Charge Attack %</th><td>{{ servant.fgo.np_charge_attack }}</td><th>NP Charge DEF %</th><td>{{ servant.fgo.np_charge_def }}</td></tr>
+          <tr><th>Death Chance %</th><td colspan="3">{{ servant.fgo.death_chance }}</td></tr>
+        </tbody>
+      </table>
+      {% if servant.fgo.traits %}
+        <div class="fgo-traits"><strong>Traits:</strong> {{ servant.fgo.traits }}</div>
+      {% endif %}
+      {% if servant.fgo.card_list %}
+        <div class="fgo-card-list"><strong>Card List:</strong> <img src="{{ url_for('card_list_image', filename=servant.fgo.card_list) }}" alt="Card List" class="card-list-img" /></div>
+      {% endif %}
+      <div class="fgo-hits"><strong>Hit Counts:</strong> Q {{ servant.fgo.hits.quick }} / A {{ servant.fgo.hits.arts }} / B {{ servant.fgo.hits.buster }} / Ex {{ servant.fgo.hits.extra }}</div>
+    </div>
+    {% endif %}
+  </section>
+  {% if servant.conversation_lines %}
+  <section class="conversation-section">
+    <h3>Conversation Lines</h3>
+    <div class="conversation-list">
+      {% for pair in servant.conversation_lines %}
+        <div class="conversation-item">
+          <div class="conversation-title"><strong>{{ pair.title }}</strong></div>
+          <div class="conversation-text">{{ pair.text }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% if servant.class_skills %}
+  <section>
+    <h3>{% if servant.fgo_mode %}Passive Skills{% else %}Class Skills{% endif %}</h3>
+    <div class="skills-list">
+      {% for s in servant.class_skills %}
+        <div class="skill-card">
+          {% if s.image_url %}<div class="icon"><img src="{{ s.image_url }}" alt=""></div>{% endif %}
+          <div class="info">
+            <div class="title"><strong>{{ s.title }}</strong></div>
+            <div class="desc">{{ s.description }}</div>
+            {% if servant.fgo_mode and s.gameplay %}<div class="gameplay"><em>{{ s.gameplay }}</em></div>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% if servant.personal_skills %}
+  <section>
+    <h3>{% if servant.fgo_mode %}Active Skills{% else %}Personal Skills{% endif %}</h3>
+    <div class="skills-list">
+      {% for s in servant.personal_skills %}
+        <div class="skill-card">
+          {% if s.image_url %}<div class="icon"><img src="{{ s.image_url }}" alt=""></div>{% endif %}
+          <div class="info">
+            <div class="title"><strong>{{ s.title }}</strong></div>
+            <div class="desc">{{ s.description }}</div>
+            {% if servant.fgo_mode and s.gameplay %}<div class="gameplay"><em>{{ s.gameplay }}</em></div>{% endif %}
+            {% if servant.fgo_mode and s.levels %}
+              {% set lv = s.levels | safe %}
+              {% set arr = lv | fromjson %}
+              {% if arr and (arr[0] is mapping) %}
+                <table class="skill-levels">
+                  <thead>
+                    <tr><th colspan="11">Scaling</th></tr>
+                    <tr><th>Lvl</th>{% for i in range(1,11) %}<th>{{ i }}</th>{% endfor %}</tr>
+                  </thead>
+                  <tbody>
+                    {% for r in arr %}
+                      <tr><th>{{ r.label }}</th>{% for v in r.values %}<td>{{ v }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <table class="skill-levels"><thead><tr><th colspan="11">Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,11) %}<th>{{ i }}</th>{% endfor %}</tr></thead><tbody><tr><th>Values</th>{% for v in arr %}<td>{{ v }}</td>{% endfor %}</tr></tbody></table>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% if servant.noble_phantasms %}
+  <section>
+    <h3>Noble Phantasm(s)</h3>
+    <div class="nps-list">
+      {% for np in servant.noble_phantasms %}
+        <div class="np-card">
+          {% if np.image_url %}<div class="np-icon"><img src="{{ np.image_url }}" alt=""></div>{% endif %}
+          <div class="np-info">
+            <div class="np-title-rank"><strong>{{ np.title }}</strong> {% if np.rank %}<span class="rank">({{ np.rank }})</span>{% endif %}</div>
+            <div class="np-desc">{{ np.description }}</div>
+            {% if servant.fgo_mode and np.effects %}<div class="np-effects"><em>{{ np.effects }}</em></div>{% endif %}
+            {% if servant.fgo_mode and np.levels %}
+              {% set lv = np.levels | safe %}
+              {% set arr = lv | fromjson %}
+              <table class="np-levels"><thead><tr><th colspan="6">NP Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,6) %}<th>{{ i }}</th>{% endfor %}</tr></thead><tbody><tr><th>Values</th>{% for v in arr %}<td>{{ v }}</td>{% endfor %}</tr></tbody>{% if np.overcharge %}<tfoot><tr><th>Overcharge</th><td colspan="5">{{ np.overcharge }}</td></tr></tfoot>{% endif %}</table>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+{% block body_end %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5l9R0GfEcg2YkdE+5EYXPLkZXl2b7xvFeoJEB6Digw1VE3DybZ0SqnX+ANXoy2cuglRez2oJ6Vp2rGH+DMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-/F2qR9vYgpKJ8EiWeduNzxaz2YsmiVjCwXTlzAIXazhbugzuDUFcPRl1BDpRP70dNDO7xjoMnIKh4j/wZCkYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ url_for('static', filename='js/export.js') }}"></script>
+{% endblock %}
