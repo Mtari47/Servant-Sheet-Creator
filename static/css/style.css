@@ -46,7 +46,7 @@ body { font-family: system-ui, Arial, sans-serif; background:var(--bg); color:va
 .header-actions { display:flex; gap:0.5rem; }
 .theme-toggle { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.4rem 0.7rem; border-radius:4px; cursor:pointer; }
 .theme-toggle:hover { background:var(--btn-hover); }
-.fgo-toggle { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.4rem 0.7rem; border-radius:4px; cursor:pointer; }
+.fgo-toggle { background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--btn-text); padding:0.4rem 0.7rem; border-radius:4px; cursor:pointer; margin-top:0.75rem; display:inline-block; }
 .fgo-toggle.active { outline:2px solid var(--link); }
 .fgo-toggle:hover { background:var(--btn-hover); }
 /* FGO mode sections */
@@ -65,13 +65,18 @@ body { font-family: system-ui, Arial, sans-serif; background:var(--bg); color:va
 .selected-card-list img { border:1px solid var(--panel-border); border-radius:4px; background:var(--input-bg); }
 main { max-width:1100px; margin:0 auto; padding:1rem; }
 
-.servant-form { display:grid; gap:1rem; }
-.panel { background:var(--panel-bg); padding:1rem 1rem 1.25rem; border:1px solid var(--panel-border); border-radius:6px; }
+.servant-form { display:flex; flex-direction:column; gap:1.25rem; }
+.panel { background:var(--panel-bg); padding:1rem 1rem 1.25rem; border:1px solid var(--panel-border); border-radius:6px; width:100%; box-sizing:border-box; }
 .panel h2 { margin-top:0; font-size:1.2rem; letter-spacing:0.5px; }
 .grid.two { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.5rem; }
-.grid.six { display:grid; grid-template-columns:repeat(6,1fr); gap:0.5rem; }
+.grid.six { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.5rem; }
+.grid.four { display:grid; grid-template-columns:repeat(4,1fr); gap:0.5rem; }
+.grid.five { display:grid; grid-template-columns:repeat(5,1fr); gap:0.5rem; }
 .grid.three { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.5rem; }
+.param-grid { margin-top:0.6rem; margin-bottom:0.75rem; display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:0.5rem; padding:0 0.5rem; }
 .param-grid input { text-align:center; }
+#fgo-section { width:100%; box-sizing:border-box; }
+#fgo-section h3 { margin-top:0; }
 label { display:block; font-size:0.85rem; }
 input[type=text], input[type=url], textarea { width:100%; box-sizing:border-box; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text); padding:0.4rem 0.5rem; border-radius:4px; }
 textarea { resize:vertical; }
