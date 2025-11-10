@@ -25,18 +25,8 @@
     updateClassOther();
   }
 
-  // Hidden Attribute select: show custom input when "Other"
+  // Hidden Attribute select (no custom option now)
   const hiddenAttrSelect = $('#hidden_attribute');
-  const hiddenAttrOtherWrap = $('#hidden_attribute_other_wrap');
-  const hiddenAttrOtherInput = $('#hidden_attribute_other');
-  if (hiddenAttrSelect){
-    const updateHiddenAttrOther = () => {
-      const isOther = (hiddenAttrSelect.value || '').trim() === 'Other';
-      if (hiddenAttrOtherWrap) hiddenAttrOtherWrap.style.display = isOther ? '' : 'none';
-    };
-    hiddenAttrSelect.addEventListener('change', updateHiddenAttrOther);
-    updateHiddenAttrOther();
-  }
 
   // FGO toggle
   const fgoBtn = $('#toggle-fgo');
@@ -446,7 +436,7 @@
       gender: $('#gender').value.trim(),
   servant_class: (()=>{ const v=(classSelect?.value||'').trim(); return v==='Other' ? (classOtherInput?.value||'').trim() : v; })(),
   alignment: $('#alignment').value.trim(),
-  hidden_attribute: (()=>{ const v=(hiddenAttrSelect?.value||'').trim(); return v==='Other' ? (hiddenAttrOtherInput?.value||'').trim() : v; })(),
+  hidden_attribute: (hiddenAttrSelect?.value||'').trim(),
       biography: $('#biography').value.trim(),
       image_url: collectPortraitUrl(),
       parameters: {
