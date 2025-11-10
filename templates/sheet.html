@@ -194,8 +194,19 @@
 </div>
 {% endblock %}
 {% block body_end %}
-<!-- Load export libraries (no SRI to avoid blocking if hashes mismatch locally) -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<!-- Prefer local vendor copies; fallback to CDN if not present -->
+<script src="{{ url_for('static', filename='vendor/html2canvas.min.js') }}"></script>
+<script>
+  if (!window.html2canvas) {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\\/script>');
+  }
+  // Try jsPDF local first
+  </script>
+<script src="{{ url_for('static', filename='vendor/jspdf.umd.min.js') }}"></script>
+<script>
+  if (!(window.jspdf || window.jsPDF || (window.window && window.window.jspdf))) {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"><\\/script>');
+  }
+</script>
 <script src="{{ url_for('static', filename='js/export.js') }}"></script>
 {% endblock %}

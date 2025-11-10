@@ -3,13 +3,22 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 import json
+import sys
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"  # replace for production
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
-IMAGES_FOLDER = os.path.join(os.path.dirname(__file__), 'images')
-PRIMARY_QAB_FOLDER = os.path.join(os.path.dirname(__file__), 'FGO Mode', 'QAB Card Lists')
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(__file__))  # PyInstaller _MEIPASS when frozen
+ROOT_DIR = os.path.dirname(__file__)  # source directory
+
+# Writable uploads must live outside bundled _MEIPASS when frozen
+if getattr(sys, 'frozen', False):
+    UPLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'ServantSheetCreator_uploads')
+else:
+    UPLOAD_FOLDER = os.path.join(ROOT_DIR, 'uploads')
+
+IMAGES_FOLDER = os.path.join(ROOT_DIR, 'images')  # user-provided images (not bundled when absent)
+PRIMARY_QAB_FOLDER = os.path.join(ROOT_DIR, 'FGO Mode', 'QAB Card Lists')
 # Use the existing folder inside FGO Mode as the authoritative source; keep secondary fallbacks if user migrates later.
 CARD_LIST_FALLBACKS = [
     PRIMARY_QAB_FOLDER,
