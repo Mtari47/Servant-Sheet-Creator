@@ -5,21 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Servant Sheet Creator</title>
   <link rel="stylesheet" href="static/css/style.css" />
-  <style>
-    header.hero { text-align:center; padding:2rem 1rem; }
-    .panel { max-width:900px; margin:0 auto 1rem; }
-    .cta { display:flex; gap:0.5rem; justify-content:center; margin-top:1rem; }
-    .cta a { text-decoration:none; }
-    .image-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:0.4rem; max-height:260px; overflow:auto; padding:0.4rem; border:1px solid var(--panel-border); background:var(--panel-bg); border-radius:6px; }
-    .image-option { background:var(--input-bg); border:1px solid var(--input-border); padding:4px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .image-option.selected { outline:2px solid var(--link); border-color:var(--link); }
-    .image-option img { width:100%; height:100%; object-fit:contain; }
-    .modal.hidden { display:none; }
-    .modal { position:fixed; inset:0; z-index:100; }
-    .modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); }
-    .modal-dialog { position:relative; background:var(--panel-bg); color:var(--text); width:min(560px,95%); margin:6vh auto; padding:1rem 1.1rem 1.2rem; border:1px solid var(--panel-border); border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,0.55); display:flex; flex-direction:column; gap:0.9rem; max-height:88vh; }
-    .modal-body { overflow-y:auto; }
-  </style>
+  <!-- Inline style removed; all layout handled by external static/css/style.css -->
 </head>
 <body>
   <header class="hero">
@@ -58,7 +44,7 @@
 
       <section class="panel">
         <h2>Parameters</h2>
-        <div class="grid six param-grid">
+        <div class="param-grid">
           <label>STR<br><input id="param_strength" maxlength="3" placeholder="A"></label>
           <label>END<br><input id="param_endurance" maxlength="3" placeholder="B"></label>
           <label>AGI<br><input id="param_agility" maxlength="3" placeholder="B"></label>
