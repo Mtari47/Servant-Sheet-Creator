@@ -171,6 +171,13 @@ textarea { resize:vertical; }
 .np-item .remove:hover { background:var(--btn-hover); }
 .uploaded-placeholder { font-size:0.7rem; opacity:0.7; }
 
+/* NP modal: constrain height and allow internal scroll when content exceeds viewport */
+#np-modal .modal-dialog { max-height:88vh; display:flex; flex-direction:column; }
+#np-modal .modal-body { overflow-y:auto; padding-right:0.25rem; }
+#np-modal .modal-body::-webkit-scrollbar { width:8px; }
+#np-modal .modal-body::-webkit-scrollbar-track { background:var(--panel-bg); }
+#np-modal .modal-body::-webkit-scrollbar-thumb { background:var(--input-border); border-radius:4px; }
+
 @media print {
   body { background:#fff; color:#000; }
   .no-print, .site-header { display:none !important; }
