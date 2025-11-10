@@ -46,7 +46,18 @@
           </label>
           <label id="servant_class_other_wrap" style="display:none;">Custom Class<br><input type="text" id="servant_class_other" placeholder="Enter class"></label>
           <label>Alignment<br><input type="text" id="alignment" placeholder="Lawful Good"></label>
-          <label>Hidden Attribute<br><input type="text" id="hidden_attribute" placeholder="Sky / Earth"></label>
+          <label>Hidden Attribute<br>
+            <select id="hidden_attribute">
+              <option value="">-- Select Hidden Attribute --</option>
+              <option>Man</option>
+              <option>Earth</option>
+              <option>Heaven</option>
+              <option>Star</option>
+              <option>Beast</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label id="hidden_attribute_other_wrap" style="display:none;">Custom Hidden Attribute<br><input type="text" id="hidden_attribute_other" placeholder="Enter attribute"></label>
         </div>
         <label>Biography<br><textarea id="biography" rows="5" placeholder="Background, legend, personality..."></textarea></label>
       </section>
