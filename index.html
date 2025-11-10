@@ -74,12 +74,66 @@
       <section class="panel">
         <h2>Parameters</h2>
         <div class="param-grid">
-          <label>STR<br><input id="param_strength" maxlength="3" placeholder="A"></label>
-          <label>END<br><input id="param_endurance" maxlength="3" placeholder="B"></label>
-          <label>AGI<br><input id="param_agility" maxlength="3" placeholder="B"></label>
-          <label>MANA<br><input id="param_mana" maxlength="3" placeholder="A"></label>
-          <label>LUCK<br><input id="param_luck" maxlength="3" placeholder="C"></label>
-          <label>NP<br><input id="param_np" maxlength="3" placeholder="EX"></label>
+          <label>STR<br>
+            <select id="param_strength">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
+          <label>END<br>
+            <select id="param_endurance">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
+          <label>AGI<br>
+            <select id="param_agility">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
+          <label>MANA<br>
+            <select id="param_mana">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
+          <label>LUCK<br>
+            <select id="param_luck">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
+          <label>NP<br>
+            <select id="param_np">
+              <option>EX</option>
+              <option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>A-</option>
+              <option>B+++</option><option>B++</option><option>B+</option><option>B</option><option>B-</option>
+              <option>C+++</option><option>C++</option><option>C+</option><option>C</option><option>C-</option>
+              <option>D+++</option><option>D++</option><option>D+</option><option>D</option><option>D-</option>
+              <option>E+++</option><option>E++</option><option>E+</option><option>E</option><option>E-</option>
+            </select>
+          </label>
         </div>
         <button type="button" id="toggle-fgo" class="fgo-toggle" aria-pressed="false">FGO Mode Off</button>
         <div id="fgo-section" data-fgo-section style="display:none; margin-top:1rem;">
