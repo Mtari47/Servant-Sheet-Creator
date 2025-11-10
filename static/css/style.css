@@ -178,6 +178,13 @@ textarea { resize:vertical; }
 #np-modal .modal-body::-webkit-scrollbar-track { background:var(--panel-bg); }
 #np-modal .modal-body::-webkit-scrollbar-thumb { background:var(--input-border); border-radius:4px; }
 
+/* Skill modal: same scroll treatment as NP modal */
+#skill-modal .modal-dialog { max-height:88vh; display:flex; flex-direction:column; }
+#skill-modal .modal-body { overflow-y:auto; padding-right:0.25rem; }
+#skill-modal .modal-body::-webkit-scrollbar { width:8px; }
+#skill-modal .modal-body::-webkit-scrollbar-track { background:var(--panel-bg); }
+#skill-modal .modal-body::-webkit-scrollbar-thumb { background:var(--input-border); border-radius:4px; }
+
 @media print {
   body { background:#fff; color:#000; }
   .no-print, .site-header { display:none !important; }

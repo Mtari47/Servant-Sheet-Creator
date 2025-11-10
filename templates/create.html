@@ -170,6 +170,19 @@
     <div class="modal-body">
       <label>Title<br><input type="text" id="np-title" placeholder="NP Title"></label>
       <label>Rank<br><input type="text" id="np-rank" placeholder="EX / A+ / B"></label>
+      <label>Type<br>
+        <select id="np-type-select">
+          <option value="">-- Select Type --</option>
+          <option>Anti-Unit</option>
+          <option>Anti-Unit (Self)</option>
+          <option>Anti-Army</option>
+          <option>Anti-Fortress</option>
+          <option>Anti-World</option>
+          <option>Barrier</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label id="np-type-other-label" style="display:none;">Custom Type<br><input type="text" id="np-type-other" placeholder="Enter NP type"></label>
       <div class="image-mode np-image-mode">
         <label><input type="radio" name="np_image_mode" value="url" checked> From URL</label>
         <label><input type="radio" name="np_image_mode" value="upload"> Upload</label>
@@ -184,14 +197,28 @@
       <div class="preview-wrapper"><img id="np-image-preview" alt="Preview" style="max-width:180px; display:none; margin-top:0.5rem;" /></div>
       <div class="fgo-np-effects" data-fgo-only style="display:none;">
         <label>NP Effects<br><textarea id="np-effects" rows="4" placeholder="Damage multiplier, buffs, debuffs, etc."></textarea></label>
-        <h4>NP Scaling (Levels 1–5)</h4>
-        <table class="levels-table" id="np-levels-table" aria-label="NP Levels">
-          <thead><tr><th>Level</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
-          <tbody><tr><th>Values</th>
-            <td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>
-          </tr></tbody>
-          <tfoot><tr><th>Overcharge Effect</th><td colspan="5" contenteditable="true"></td></tr></tfoot>
+        <h4>NP Scaling (Editable Rows)</h4>
+        <table class="levels-table" id="np-levels-table" aria-label="NP Levels" data-dynamic-np>
+          <thead>
+            <tr><th>Label</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+          </thead>
+          <tbody id="np-levels-pre">
+            <tr>
+              <th contenteditable="true">Values</th>
+              <td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>
+            </tr>
+          </tbody>
+          <tbody id="np-overcharge-body">
+            <tr>
+              <td colspan="6" class="np-overcharge-row">Overcharge Effect: <span id="np-overcharge-cell" contenteditable="true"></span></td>
+            </tr>
+          </tbody>
+          <tbody id="np-levels-post"></tbody>
         </table>
+        <div class="np-scaling-actions" style="margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" id="np-add-row-pre" class="add-item">+ Add Line Above Overcharge</button>
+          <button type="button" id="np-add-row-post" class="add-item">+ Add Line Below Overcharge</button>
+        </div>
       </div>
     </div>
     <div class="modal-actions">

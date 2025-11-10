@@ -1,3 +1,4 @@
+// Dynamic NP modal with editable rows above and below a single Overcharge row
 (function(){
   const modal = document.getElementById('np-modal');
   if (!modal) return;
@@ -8,11 +9,18 @@
   const rankInput = document.getElementById('np-rank');
   const descInput = document.getElementById('np-description');
   const effectsInput = document.getElementById('np-effects');
-  const levelsTable = document.getElementById('np-levels-table');
+  const typeSelect = document.getElementById('np-type-select');
+  const typeOtherLabel = document.getElementById('np-type-other-label');
+  const typeOtherInput = document.getElementById('np-type-other');
+  const preBody = document.getElementById('np-levels-pre');
+  const postBody = document.getElementById('np-levels-post');
+  const overchargeCell = document.getElementById('np-overcharge-cell');
+  const addRowPreBtn = document.getElementById('np-add-row-pre');
+  const addRowPostBtn = document.getElementById('np-add-row-post');
   const urlWrapper = document.getElementById('np-image-url-wrapper');
   const fileWrapper = document.getElementById('np-image-file-wrapper');
-  const urlInput = document.getElementById('np-image-url');
-  const fileInput = document.getElementById('np-image-file');
+  let urlInput = document.getElementById('np-image-url');
+  let fileInput = document.getElementById('np-image-file');
   const preview = document.getElementById('np-image-preview');
   const modeRadios = modal.querySelectorAll('input[name="np_image_mode"]');
 
@@ -20,23 +28,37 @@
   const openBtn = panel.querySelector('.open-np-modal');
   const itemsWrap = panel.querySelector('.np-items');
   const hiddenWrap = panel.querySelector('.hidden-inputs');
+  let counter = 0;
 
-  let counter = 0; // index for NP items
+  function buildRow(){
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.contentEditable = 'true';
+    th.textContent = 'Values';
+    tr.appendChild(th);
+    for (let i=0;i<5;i++){
+      const td = document.createElement('td');
+      td.contentEditable = 'true';
+      tr.appendChild(td);
+    }
+    return tr;
+  }
 
   function openModal(){
-    titleInput.value = '';
-    rankInput.value = '';
-    descInput.value = '';
-    urlInput.value = '';
-    fileInput.value = '';
-    preview.style.display = 'none';
+    titleInput.value='';
+    rankInput.value='';
+    descInput.value='';
     if (effectsInput) effectsInput.value='';
-    if (levelsTable){
-      levelsTable.querySelectorAll('tbody td').forEach(td => td.textContent='');
-      const over = levelsTable.querySelector('tfoot td');
-      if (over) over.textContent='';
-    }
-    modeRadios.forEach(r => { if (r.value === 'url') r.checked = true; });
+  if (typeSelect) typeSelect.value='';
+  if (typeOtherInput) typeOtherInput.value='';
+  if (typeOtherLabel) typeOtherLabel.style.display='none';
+    urlInput.value='';
+    fileInput.value='';
+    preview.style.display='none';
+    if (preBody){ preBody.innerHTML=''; preBody.appendChild(buildRow()); }
+    if (postBody){ postBody.innerHTML=''; }
+    if (overchargeCell){ overchargeCell.textContent=''; }
+    modeRadios.forEach(r => { if (r.value==='url') r.checked=true; });
     updateMode();
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden','false');
@@ -51,7 +73,6 @@
     if (mode === 'url') { urlWrapper.style.display=''; fileWrapper.style.display='none'; preview.style.display=''; updatePreview(); }
     else { urlWrapper.style.display='none'; fileWrapper.style.display=''; preview.style.display='none'; }
   }
-
   modeRadios.forEach(r => r.addEventListener('change', updateMode));
 
   function updatePreview(){
@@ -60,6 +81,17 @@
   }
   urlInput.addEventListener('input', updatePreview);
 
+  if (addRowPreBtn) addRowPreBtn.addEventListener('click', () => preBody && preBody.appendChild(buildRow()));
+  if (addRowPostBtn) addRowPostBtn.addEventListener('click', () => postBody && postBody.appendChild(buildRow()));
+
+  // NP Type selection logic
+  if (typeSelect){
+    typeSelect.addEventListener('change', () => {
+      const show = typeSelect.value === 'Other';
+      if (typeOtherLabel) typeOtherLabel.style.display = show ? '' : 'none';
+    });
+  }
+
   openBtn.addEventListener('click', openModal);
   backdrop.addEventListener('click', closeModal);
   closeButtons.forEach(b => b.addEventListener('click', closeModal));
@@ -67,55 +99,58 @@
   function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 
+  function collectRows(tbody){
+    const rows = [];
+    if (!tbody) return rows;
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const th = tr.querySelector('th');
+      const label = th ? th.textContent.trim() : '';
+      const values = [];
+      tr.querySelectorAll('td').forEach(td => values.push(td.textContent.trim()));
+      rows.push({ label, values });
+    });
+    return rows;
+  }
+
   saveBtn.addEventListener('click', () => {
     const title = titleInput.value.trim();
     const rank = rankInput.value.trim();
     const desc = descInput.value.trim();
     const effects = effectsInput ? effectsInput.value.trim() : '';
-    let levelsJSON = '';
-    let overchargeValue = '';
-    if (levelsTable){
-      const tds = Array.from(levelsTable.querySelectorAll('tbody td'));
-      const values = tds.map(td => td.textContent.trim());
-      levelsJSON = JSON.stringify(values); // length 5
-      const over = levelsTable.querySelector('tfoot td');
-      overchargeValue = over ? over.textContent.trim() : '';
-    }
+  const typeVal = typeSelect ? typeSelect.value.trim() : '';
+  const typeResolved = (typeVal === 'Other') ? (typeOtherInput ? typeOtherInput.value.trim() : '') : typeVal;
+    const preRows = collectRows(preBody);
+    const postRows = collectRows(postBody);
+    const overText = overchargeCell ? overchargeCell.textContent.trim() : '';
+    const levelsObj = { pre: preRows, overcharge: overText, post: postRows };
+    const levelsJSON = JSON.stringify(levelsObj).replace(/'/g,"&#39;");
+
     const mode = modal.querySelector('input[name="np_image_mode"]:checked').value;
     const urlVal = urlInput.value.trim();
     let imagePreviewHTML = '';
     let imageUrlHiddenValue = '';
-
     let fileFieldName = '';
+
     if (mode === 'url') {
       if (urlVal){ imagePreviewHTML = `<img src="${escAttr(urlVal)}" alt="">`; imageUrlHiddenValue = urlVal; }
     } else {
-      // upload: we create a unique file input appended to hiddenWrap so it submits with form
       const idx = counter;
       fileFieldName = `np_image_file_${idx}`;
-      const clone = document.createElement('input');
-      clone.type = 'file';
-      clone.accept = 'image/*';
-      clone.name = fileFieldName;
-      // We cannot programmatically set FileList, so ensure user picked a file
       if (!fileInput.files || fileInput.files.length === 0){
         alert('Please choose a file for the NP image.');
         return;
       }
-      // Move original file input (with chosen file) into hiddenWrap, create new blank one for next time
       const original = fileInput;
       original.name = fileFieldName;
       hiddenWrap.appendChild(original);
-      // Create replacement file input for modal reuse
       const replacement = document.createElement('input');
       replacement.type = 'file';
       replacement.accept = 'image/*';
       replacement.id = 'np-image-file';
       fileWrapper.appendChild(replacement);
-      // Update ref
       fileInput = replacement;
       imagePreviewHTML = '<span class="uploaded-placeholder">(Uploaded)</span>';
-      imageUrlHiddenValue = ''; // server will set actual URL after save
+      imageUrlHiddenValue = '';
     }
 
     const item = document.createElement('div');
@@ -134,12 +169,12 @@
       <input type="hidden" name="np_image_url[]" value="${escAttr(imageUrlHiddenValue)}">
       <input type="hidden" name="np_description[]" value="${escAttr(desc)}">
       <input type="hidden" name="np_effects[]" value="${escAttr(effects)}">
-      <input type="hidden" name="np_levels[]" value='${levelsJSON.replace(/'/g,"&#39;")}' >
-      <input type="hidden" name="np_overcharge[]" value="${escAttr(overchargeValue)}">
+  <input type="hidden" name="np_type[]" value="${escAttr(typeResolved)}">
+      <input type="hidden" name="np_levels[]" value='${levelsJSON}'>
+      <input type="hidden" name="np_overcharge[]" value="${escAttr(overText)}">
     `;
 
     item.querySelector('.remove').addEventListener('click', () => {
-      // If upload mode, also remove moved file input
       if (mode === 'upload'){
         const fi = hiddenWrap.querySelector(`input[name='${fileFieldName}']`);
         fi && fi.remove();

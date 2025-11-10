@@ -106,22 +106,21 @@
             <div class="desc">{{ s.description }}</div>
             {% if servant.fgo_mode and s.gameplay %}<div class="gameplay"><em>{{ s.gameplay }}</em></div>{% endif %}
             {% if servant.fgo_mode and s.levels %}
-              {% set lv = s.levels | safe %}
-              {% set arr = lv | fromjson %}
-              {% if arr and (arr[0] is mapping) %}
+              {% set parsed = s.levels | fromjson %}
+              {% if parsed and (parsed[0] is mapping) %}
                 <table class="skill-levels">
                   <thead>
                     <tr><th colspan="11">Scaling</th></tr>
                     <tr><th>Lvl</th>{% for i in range(1,11) %}<th>{{ i }}</th>{% endfor %}</tr>
                   </thead>
                   <tbody>
-                    {% for r in arr %}
-                      <tr><th>{{ r.label }}</th>{% for v in r.values %}<td>{{ v }}</td>{% endfor %}</tr>
+                    {% for r in parsed %}
+                      <tr><th>{{ r.label }}</th>{% for v in r['values'] %}<td>{{ v }}</td>{% endfor %}</tr>
                     {% endfor %}
                   </tbody>
                 </table>
               {% else %}
-                <table class="skill-levels"><thead><tr><th colspan="11">Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,11) %}<th>{{ i }}</th>{% endfor %}</tr></thead><tbody><tr><th>Values</th>{% for v in arr %}<td>{{ v }}</td>{% endfor %}</tr></tbody></table>
+                <table class="skill-levels"><thead><tr><th colspan="11">Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,11) %}<th>{{ i }}</th>{% endfor %}</tr></thead><tbody><tr><th>Values</th>{% for v in parsed %}<td>{{ v }}</td>{% endfor %}</tr></tbody></table>
               {% endif %}
             {% endif %}
           </div>
@@ -138,13 +137,53 @@
         <div class="np-card">
           {% if np.image_url %}<div class="np-icon"><img src="{{ np.image_url }}" alt=""></div>{% endif %}
           <div class="np-info">
-            <div class="np-title-rank"><strong>{{ np.title }}</strong> {% if np.rank %}<span class="rank">({{ np.rank }})</span>{% endif %}</div>
+            <div class="np-title-rank"><strong>{{ np.title }}</strong>{% if np.rank %} <span class="rank">({{ np.rank }})</span>{% endif %}{% if np.np_type %} <span class="np-type">[{{ np.np_type }}]</span>{% endif %}</div>
             <div class="np-desc">{{ np.description }}</div>
             {% if servant.fgo_mode and np.effects %}<div class="np-effects"><em>{{ np.effects }}</em></div>{% endif %}
             {% if servant.fgo_mode and np.levels %}
-              {% set lv = np.levels | safe %}
-              {% set arr = lv | fromjson %}
-              <table class="np-levels"><thead><tr><th colspan="6">NP Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,6) %}<th>{{ i }}</th>{% endfor %}</tr></thead><tbody><tr><th>Values</th>{% for v in arr %}<td>{{ v }}</td>{% endfor %}</tr></tbody>{% if np.overcharge %}<tfoot><tr><th>Overcharge</th><td colspan="5">{{ np.overcharge }}</td></tr></tfoot>{% endif %}</table>
+              {% set raw = np.levels %}
+              {% set parsed = raw | fromjson %}
+              {% if parsed %}
+                {# Determine if new structured format (dict with pre/post) or legacy array #}
+                {% if parsed.pre is defined and parsed.post is defined %}
+                  <table class="np-levels">
+                    <thead>
+                      <tr><th colspan="6">NP Scaling</th></tr>
+                      <tr><th>Label</th>{% for i in range(1,6) %}<th>{{ i }}</th>{% endfor %}</tr>
+                    </thead>
+                    {% if parsed.pre and parsed.pre|length %}
+                      <tbody>
+                        {% for row in parsed.pre %}
+                          <tr>
+                            <th>{{ row.label }}</th>
+                            {% for v in row['values'] %}<td>{{ v }}</td>{% endfor %}
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    {% endif %}
+                    <tbody>
+                      <tr><td colspan="6"><strong>Overcharge Effect:</strong> {{ parsed.overcharge }}</td></tr>
+                    </tbody>
+                    {% if parsed.post and parsed.post|length %}
+                      <tbody>
+                        {% for row in parsed.post %}
+                          <tr>
+                            <th>{{ row.label }}</th>
+                            {% for v in row['values'] %}<td>{{ v }}</td>{% endfor %}
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    {% endif %}
+                  </table>
+                {% else %}
+                  {# Legacy simple array of values #}
+                  <table class="np-levels">
+                    <thead><tr><th colspan="6">NP Scaling</th></tr><tr><th>Lvl</th>{% for i in range(1,6) %}<th>{{ i }}</th>{% endfor %}</tr></thead>
+                    <tbody><tr><th>Values</th>{% for v in parsed %}<td>{{ v }}</td>{% endfor %}</tr></tbody>
+                    {% if np.overcharge %}<tfoot><tr><th>Overcharge</th><td colspan="5">{{ np.overcharge }}</td></tr></tfoot>{% endif %}
+                  </table>
+                {% endif %}
+              {% endif %}
             {% endif %}
           </div>
         </div>
@@ -155,7 +194,8 @@
 </div>
 {% endblock %}
 {% block body_end %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5l9R0GfEcg2YkdE+5EYXPLkZXl2b7xvFeoJEB6Digw1VE3DybZ0SqnX+ANXoy2cuglRez2oJ6Vp2rGH+DMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-/F2qR9vYgpKJ8EiWeduNzxaz2YsmiVjCwXTlzAIXazhbugzuDUFcPRl1BDpRP70dNDO7xjoMnIKh4j/wZCkYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Load export libraries (no SRI to avoid blocking if hashes mismatch locally) -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="{{ url_for('static', filename='js/export.js') }}"></script>
 {% endblock %}

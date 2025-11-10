@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from werkzeug.utils import secure_filename
 import os
 import uuid
+import json
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"  # replace for production
@@ -25,6 +26,16 @@ if not os.path.exists(UPLOAD_FOLDER):
 # Do not create a new root-level folder; rely on existing structure. Create primary only if absent.
 if not os.path.exists(PRIMARY_QAB_FOLDER):
     os.makedirs(PRIMARY_QAB_FOLDER)
+
+# Jinja filter to safely parse JSON strings in templates (used for FGO dynamic scaling)
+@app.template_filter('fromjson')
+def fromjson_filter(value):
+    if not value:
+        return None
+    try:
+        return json.loads(value)
+    except Exception:
+        return None
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -168,20 +179,22 @@ def create_servant():
                     'title': title, 'image': img, 'image_url': img_url, 'description': desc
                 })
 
-        # Build Noble Phantasms (Title, Rank, Image (url or upload), Description)
+        # Build Noble Phantasms (Title, Rank, Type, Image (url or upload), Description)
         np_titles = [t.strip() for t in form.getlist('np_title[]')]
         np_ranks = [t.strip() for t in form.getlist('np_rank[]')]
         np_modes = [t.strip() for t in form.getlist('np_image_mode[]')]
         np_urls = [t.strip() for t in form.getlist('np_image_url[]')]
         np_descs = [t.strip() for t in form.getlist('np_description[]')]
+        np_types = [t.strip() for t in form.getlist('np_type[]')]
 
-        max_len_np = max(len(np_titles), len(np_ranks), len(np_modes), len(np_urls), len(np_descs)) if (np_titles or np_ranks or np_modes or np_urls or np_descs) else 0
+        max_len_np = max(len(np_titles), len(np_ranks), len(np_modes), len(np_urls), len(np_descs), len(np_types)) if (np_titles or np_ranks or np_modes or np_urls or np_descs or np_types) else 0
         for i in range(max_len_np):
             title = np_titles[i] if i < len(np_titles) else ''
             rank = np_ranks[i] if i < len(np_ranks) else ''
             mode = np_modes[i] if i < len(np_modes) else 'url'
             url_val = np_urls[i] if i < len(np_urls) else ''
             desc = np_descs[i] if i < len(np_descs) else ''
+            np_type = np_types[i] if i < len(np_types) else ''
 
             image_url = ''
             if mode == 'url' and url_val:
@@ -199,10 +212,11 @@ def create_servant():
                     else:
                         flash(f'Unsupported NP image file type for item {i+1}', 'error')
 
-            if title or rank or image_url or desc:
+            if title or rank or image_url or desc or np_type:
                 servant['noble_phantasms'].append({
                     'title': title,
                     'rank': rank,
+                    'np_type': np_type,
                     'image_url': image_url,
                     'description': desc,
                 })

@@ -52,12 +52,16 @@
     updateGridSelection();
     // Determine scope and toggle levels table visibility: only personal (active) uses levels
     const scope = panel.getAttribute('data-scope');
+    const fgoActive = document.getElementById('fgo-toggle')?.classList.contains('active');
     if (levelsTable) {
-      if (scope === 'personal') {
-        levelsTable.closest('.fgo-levels-field').style.display = '';
-      } else {
-        // class skills (passive) should not show scaling table
-        levelsTable.closest('.fgo-levels-field').style.display = 'none';
+      const wrapper = levelsTable.closest('.fgo-levels-field');
+      if (wrapper){
+        // Show scaling table ONLY if: personal skill AND FGO Mode active
+        if (scope === 'personal' && fgoActive){
+          wrapper.style.display = '';
+        } else {
+          wrapper.style.display = 'none';
+        }
       }
     }
     modal.classList.remove('hidden');
