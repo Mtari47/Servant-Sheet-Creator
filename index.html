@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Servant Sheet Creator</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <style>
+    header.hero { text-align:center; padding:2rem 1rem; }
+    .panel { max-width:900px; margin:0 auto 1rem; }
+    .cta { display:flex; gap:0.5rem; justify-content:center; margin-top:1rem; }
+    .cta a { text-decoration:none; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Servant Sheet Creator</h1>
+    <p>Generate Fate/Grand Order-style servant sheets. Web app (Flask) and offline desktop (PySide6) versions.</p>
+    <div class="cta">
+      <a class="add-item" href="https://github.com/Mtari47/Servant-Sheet-Creator">View on GitHub</a>
+      <a class="add-item" href="README.md">Quick Start</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>About</h2>
+      <p>This site hosts static information for the project. The interactive generator is a Flask application and cannot run on GitHub Pages directly. Use the repository to run locally or the packaged desktop version.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Run Locally (Web)</h2>
+      <ol>
+        <li>Install Python 3.9+.</li>
+        <li>Create and activate a virtual environment.</li>
+        <li>Install requirements: <code>pip install -r requirements.txt</code>.</li>
+        <li>Start: <code>python app.py</code>, then open <code>http://127.0.0.1:5000/</code>.</li>
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>Offline Desktop (Windows)</h2>
+      <p>A PySide6 desktop UI is included under <code>offline/</code>. Launch with:</p>
+      <pre><code>python -m offline.offline_main</code></pre>
+      <p>Export to PNG/PDF is available in the desktop app.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Features</h2>
+      <ul>
+        <li>FGO Mode toggle with stats, hits, and card list image.</li>
+        <li>Dynamic skill and NP scaling tables; NP Type support.</li>
+        <li>Scroll-friendly modals for tall content.</li>
+        <li>Export to PNG/JPEG/PDF on the web; PNG/PDF offline.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
