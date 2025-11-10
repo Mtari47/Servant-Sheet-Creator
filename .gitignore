@@ -1,0 +1,37 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / build
+build/
+dist/
+*.spec
+
+# Logs and dumps
+*.log
+
+# IDE/editor settings
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploaded/user-generated content
+uploads/
+
+# Node / frontend caches
+node_modules/
+
+# PyInstaller temp paths
+pyinstaller/
+
+# HTML2Canvas/jsPDF vendor fallbacks (if generated)
+static/vendor/
