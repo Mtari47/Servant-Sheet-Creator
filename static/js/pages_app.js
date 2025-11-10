@@ -15,6 +15,13 @@
   // FGO toggle
   const fgoBtn = $('#toggle-fgo');
   const fgoSection = $('#fgo-section');
+  // Card list modal elements
+  const cardListModal = $('#card-list-modal');
+  const cardListGrid = $('#card-list-grid');
+  const cardListSelectBtn = $('#card-list-select');
+  const cardListInput = $('#fgo_card_list');
+  const cardListPreview = $('#card-list-preview');
+  let selectedCardListIndex = -1;
   let fgoMode = false;
   function setFgoMode(on){
     fgoMode = !!on;
@@ -22,11 +29,63 @@
     fgoBtn.textContent = on ? 'FGO Mode On' : 'FGO Mode Off';
     fgoBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     $$("[data-fgo-only]").forEach(el => el.style.display = on ? '' : 'none');
+    if (on && ASSETS.card_lists.length && cardListGrid && !cardListGrid.hasChildNodes()) {
+      buildCardListGrid();
+    }
   }
   if (fgoBtn){ fgoBtn.addEventListener('click', () => setFgoMode(!fgoMode)); }
   setFgoMode(false);
 
   // Portrait image mode
+  // Card list selection modal logic
+  function openCardListModal(){
+    if (!ASSETS.card_lists.length) {
+      alert('No card list images available.');
+      return;
+    }
+    buildCardListGrid();
+    cardListModal.classList.remove('hidden');
+    cardListModal.setAttribute('aria-hidden','false');
+  }
+  function closeCardListModal(){
+    cardListModal.classList.add('hidden');
+    cardListModal.setAttribute('aria-hidden','true');
+  }
+  function buildCardListGrid(){
+    if (!cardListGrid) return;
+    cardListGrid.innerHTML = '';
+    ASSETS.card_lists.forEach((path, idx) => {
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className='image-option';
+      btn.innerHTML = `<img src="${escAttr(path)}" alt="Card List">`;
+      btn.addEventListener('click', () => { selectedCardListIndex = idx; updateCardListSel(); });
+      cardListGrid.appendChild(btn);
+    });
+    updateCardListSel();
+  }
+  function updateCardListSel(){
+    cardListGrid.querySelectorAll('.image-option').forEach((el,i)=> el.classList.toggle('selected', i===selectedCardListIndex));
+  }
+  if (cardListGrid){
+    // Replace plain URL input with button + retained input if user wants custom URL
+    const pickerBtn = document.createElement('button');
+    pickerBtn.type='button';
+    pickerBtn.textContent='Open Card List Gallery';
+    pickerBtn.className='add-item';
+    cardListInput.insertAdjacentElement('afterend', pickerBtn);
+    pickerBtn.addEventListener('click', openCardListModal);
+  }
+  cardListModal?.querySelectorAll('[data-close]')?.forEach(b=> b.addEventListener('click', closeCardListModal));
+  cardListSelectBtn?.addEventListener('click', () => {
+    if (selectedCardListIndex>=0){
+      const path = ASSETS.card_lists[selectedCardListIndex];
+      cardListInput.value = path; // store path
+      cardListPreview.innerHTML = `<img src="${escAttr(path)}" alt="Selected Card List" class="card-list-img">`;
+    }
+    closeCardListModal();
+  });
+  cardListModal?.querySelector('.modal-backdrop')?.addEventListener('click', closeCardListModal);
   const portraitUrl = $('#portrait-url');
   const portraitFile = $('#portrait-file');
   const portraitPreview = $('#portrait-preview');
