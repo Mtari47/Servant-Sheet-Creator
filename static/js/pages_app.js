@@ -69,9 +69,14 @@
   // one starter item
   addConversation();
 
-  // Skills
+  // Skills + asset manifest
   const classList = $('#class-skills-list');
   const personalList = $('#personal-skills-list');
+  let ASSETS = { skill_icons: [], card_lists: [] };
+  fetch('assets_manifest.json')
+    .then(r => r.ok ? r.json() : ASSETS)
+    .then(data => { ASSETS = data || ASSETS; })
+    .catch(()=>{});
   $('#add-class-skill').addEventListener('click', () => openSkillModal('class'));
   $('#add-personal-skill').addEventListener('click', () => openSkillModal('personal'));
 
@@ -89,6 +94,7 @@
         <div class="modal-body">
           <label>Title<br><input type="text" class="inp-title"></label>
           <label>Description<br><textarea rows="4" class="inp-desc"></textarea></label>
+          <div class="image-picker"><div class="image-picker-header">Choose an icon</div><div class="image-grid icon-grid"></div></div>
           <div class="fgo-gameplay-field" data-fgo-only style="${fgoMode?'':'display:none;'}">
             <label>Gameplay Info<br><textarea rows="3" class="inp-gameplay"></textarea></label>
           </div>
@@ -105,14 +111,30 @@
       </div>`;
     const dialog = backdrop.querySelector('.modal-dialog');
     const body = dialog.querySelector('.modal-body');
-    const addRowBtn = dialog.querySelector('.btn-add-row');
-    const levelsBody = dialog.querySelector('.levels-body');
+  const addRowBtn = dialog.querySelector('.btn-add-row');
+  const levelsBody = dialog.querySelector('.levels-body');
+  const iconGrid = dialog.querySelector('.icon-grid');
+  let selectedIcon = -1;
     addRowBtn && addRowBtn.addEventListener('click', ()=>{
       const tr=document.createElement('tr');
       const th=document.createElement('th'); th.contentEditable='true'; tr.appendChild(th);
       for(let i=0;i<10;i++){ const td=document.createElement('td'); td.contentEditable='true'; tr.appendChild(td);} 
       levelsBody.appendChild(tr);
     });
+    // Build icon grid
+    if (iconGrid && ASSETS.skill_icons && ASSETS.skill_icons.length){
+      ASSETS.skill_icons.forEach((path, idx) => {
+        const btn = document.createElement('button');
+        btn.type='button';
+        btn.className='image-option';
+        btn.innerHTML = `<img src="${escAttr(path)}" alt="">`;
+        btn.addEventListener('click', () => { selectedIcon = idx; updateIconSel(); });
+        iconGrid.appendChild(btn);
+      });
+      function updateIconSel(){
+        iconGrid.querySelectorAll('.image-option').forEach((el,i)=> el.classList.toggle('selected', i===selectedIcon));
+      }
+    }
     function close(){ backdrop.remove(); }
     backdrop.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', close));
     backdrop.querySelector('.modal-backdrop').addEventListener('click', close);
@@ -131,8 +153,9 @@
       }
       const item=document.createElement('div');
       item.className='skill-item';
+      const iconHtml = (selectedIcon>=0 && ASSETS.skill_icons[selectedIcon])?`<img src="${escAttr(ASSETS.skill_icons[selectedIcon])}" alt="">`:'';
       item.innerHTML = `
-        <div class="icon"></div>
+        <div class="icon">${iconHtml}</div>
         <div class="text">
           <div class="title">${escHtml(title||'(Untitled)')}</div>
           <div class="desc">${escHtml(desc)}</div>
@@ -141,7 +164,7 @@
         <button type="button" class="remove" aria-label="Remove">×</button>`;
       item.querySelector('.remove').addEventListener('click', ()=> item.remove());
       if (scope==='class') classList.appendChild(item); else personalList.appendChild(item);
-      item.__data = { title, description: desc, gameplay, levels: rows };
+      item.__data = { title, description: desc, gameplay, levels: rows, image_url: (selectedIcon>=0?ASSETS.skill_icons[selectedIcon]:'') };
       close();
     });
     return { backdrop };
@@ -429,7 +452,8 @@
     function renderSkill(sk, fgo, isPersonal=false){
       const gameplay = fgo && sk.gameplay ? `<div class="gameplay"><em>${esc(sk.gameplay)}</em></div>` : '';
       const levels = fgo && isPersonal && sk.levels && sk.levels.length ? renderSkillLevels(sk.levels) : '';
-      return `<div class="skill-card"><div class="icon"></div><div class="info"><div class="title"><strong>${esc(sk.title)}</strong></div><div class="desc">${esc(sk.description)}</div>${gameplay}${levels}</div></div>`;
+      const icon = sk.image_url?`<div class="icon"><img src="${escAttr(sk.image_url)}" alt=""></div>`:'<div class="icon"></div>';
+      return `<div class="skill-card">${icon}<div class="info"><div class="title"><strong>${esc(sk.title)}</strong></div><div class="desc">${esc(sk.description)}</div>${gameplay}${levels}</div></div>`;
     }
     function renderSkillLevels(rows){
       return `<table class="skill-levels"><thead><tr><th colspan="11">Scaling</th></tr><tr><th>Lvl</th>${Array.from({length:10},(_,i)=>`<th>${i+1}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r.label)}</th>${r.values.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
