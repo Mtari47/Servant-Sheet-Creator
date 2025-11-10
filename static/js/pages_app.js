@@ -12,6 +12,19 @@
     });
   }
 
+  // Class select: show custom input when "Other"
+  const classSelect = $('#servant_class');
+  const classOtherWrap = $('#servant_class_other_wrap');
+  const classOtherInput = $('#servant_class_other');
+  if (classSelect){
+    const updateClassOther = () => {
+      const isOther = (classSelect.value || '').trim() === 'Other';
+      if (classOtherWrap) classOtherWrap.style.display = isOther ? '' : 'none';
+    };
+    classSelect.addEventListener('change', updateClassOther);
+    updateClassOther();
+  }
+
   // FGO toggle
   const fgoBtn = $('#toggle-fgo');
   const fgoSection = $('#fgo-section');
@@ -418,7 +431,7 @@
     const servant = {
       name: $('#name').value.trim(),
       gender: $('#gender').value.trim(),
-      servant_class: $('#servant_class').value.trim(),
+  servant_class: (()=>{ const v=(classSelect?.value||'').trim(); return v==='Other' ? (classOtherInput?.value||'').trim() : v; })(),
       alignment: $('#alignment').value.trim(),
       hidden_attribute: $('#hidden_attribute').value.trim(),
       biography: $('#biography').value.trim(),

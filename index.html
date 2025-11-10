@@ -24,7 +24,27 @@
         <div class="grid two">
           <label>Name<br><input type="text" id="name" placeholder="Servant Name"></label>
           <label>Gender<br><input type="text" id="gender"></label>
-          <label>Class<br><input type="text" id="servant_class" placeholder="Saber"></label>
+          <label>Class<br>
+            <select id="servant_class">
+              <option value="">-- Select Class --</option>
+              <option>Saber</option>
+              <option>Archer</option>
+              <option>Lancer</option>
+              <option>Rider</option>
+              <option>Caster</option>
+              <option>Assassin</option>
+              <option>Avenger</option>
+              <option>Ruler</option>
+              <option>MoonCancer</option>
+              <option>AlterEgo</option>
+              <option>Foreigner</option>
+              <option>Pretender</option>
+              <option>Shielder</option>
+              <option>Beast</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label id="servant_class_other_wrap" style="display:none;">Custom Class<br><input type="text" id="servant_class_other" placeholder="Enter class"></label>
           <label>Alignment<br><input type="text" id="alignment" placeholder="Lawful Good"></label>
           <label>Hidden Attribute<br><input type="text" id="hidden_attribute" placeholder="Sky / Earth"></label>
         </div>
