@@ -14,46 +14,131 @@
 </head>
 <body>
   <header class="hero">
-    <h1>Servant Sheet Creator</h1>
-    <p>Generate Fate/Grand Order-style servant sheets. Web app (Flask) and offline desktop (PySide6) versions.</p>
+    <h1>Servant Sheet Creator (Static)</h1>
+    <p>Fully client-side servant sheet generator running entirely on GitHub Pages (no server required).</p>
     <div class="cta">
-      <a class="add-item" href="https://github.com/Mtari47/Servant-Sheet-Creator">View on GitHub</a>
-      <a class="add-item" href="README.md">Quick Start</a>
+      <button class="add-item" id="toggle-theme" type="button">Toggle Theme</button>
+      <a class="add-item" href="https://github.com/Mtari47/Servant-Sheet-Creator" target="_blank" rel="noopener">Repo</a>
     </div>
   </header>
 
-  <main>
-    <section class="panel">
-      <h2>About</h2>
-      <p>This site hosts static information for the project. The interactive generator is a Flask application and cannot run on GitHub Pages directly. Use the repository to run locally or the packaged desktop version.</p>
-    </section>
+  <main id="app-root">
+    <form id="servant-form" class="servant-form" autocomplete="off">
+      <section class="panel">
+        <h2>Basic Information</h2>
+        <div class="grid two">
+          <label>Name<br><input type="text" id="name" placeholder="Servant Name"></label>
+          <label>Gender<br><input type="text" id="gender"></label>
+          <label>Class<br><input type="text" id="servant_class" placeholder="Saber"></label>
+          <label>Alignment<br><input type="text" id="alignment" placeholder="Lawful Good"></label>
+          <label>Hidden Attribute<br><input type="text" id="hidden_attribute" placeholder="Sky / Earth"></label>
+        </div>
+        <label>Biography<br><textarea id="biography" rows="5" placeholder="Background, legend, personality..."></textarea></label>
+      </section>
 
-    <section class="panel">
-      <h2>Run Locally (Web)</h2>
-      <ol>
-        <li>Install Python 3.9+.</li>
-        <li>Create and activate a virtual environment.</li>
-        <li>Install requirements: <code>pip install -r requirements.txt</code>.</li>
-        <li>Start: <code>python app.py</code>, then open <code>http://127.0.0.1:5000/</code>.</li>
-      </ol>
-    </section>
+      <section class="panel">
+        <h2>Portrait Image</h2>
+        <div class="image-mode">
+          <label><input type="radio" name="portrait_mode" value="url" checked> From URL</label>
+          <label><input type="radio" name="portrait_mode" value="file"> Local File</label>
+        </div>
+        <div id="portrait-url-wrapper"><input type="url" id="portrait-url" placeholder="https://.../image.png" style="width:100%"></div>
+        <div id="portrait-file-wrapper" style="display:none;"><input type="file" id="portrait-file" accept="image/*"></div>
+        <img id="portrait-preview" alt="Portrait Preview" style="max-width:220px; display:none; margin-top:0.6rem;" />
+      </section>
 
-    <section class="panel">
-      <h2>Offline Desktop (Windows)</h2>
-      <p>A PySide6 desktop UI is included under <code>offline/</code>. Launch with:</p>
-      <pre><code>python -m offline.offline_main</code></pre>
-      <p>Export to PNG/PDF is available in the desktop app.</p>
-    </section>
+      <section class="panel">
+        <h2>Parameters</h2>
+        <div class="grid six param-grid">
+          <label>STR<br><input id="param_strength" maxlength="3" placeholder="A"></label>
+          <label>END<br><input id="param_endurance" maxlength="3" placeholder="B"></label>
+          <label>AGI<br><input id="param_agility" maxlength="3" placeholder="B"></label>
+          <label>MANA<br><input id="param_mana" maxlength="3" placeholder="A"></label>
+          <label>LUCK<br><input id="param_luck" maxlength="3" placeholder="C"></label>
+          <label>NP<br><input id="param_np" maxlength="3" placeholder="EX"></label>
+        </div>
+        <button type="button" id="toggle-fgo" class="fgo-toggle" aria-pressed="false">FGO Mode Off</button>
+        <div id="fgo-section" data-fgo-section style="display:none; margin-top:1rem;">
+          <h3>FGO Stats</h3>
+          <div class="grid four">
+            <label>ATK (Min)<br><input id="fgo_atk_min"></label>
+            <label>ATK (Max)<br><input id="fgo_atk_max"></label>
+            <label>HP (Min)<br><input id="fgo_hp_min"></label>
+            <label>HP (Max)<br><input id="fgo_hp_max"></label>
+          </div>
+          <div class="grid four">
+            <label>Lv.100 Grail ATK<br><input id="fgo_grail_100_atk"></label>
+            <label>Lv.100 Grail HP<br><input id="fgo_grail_100_hp"></label>
+            <label>Lv.120 Grail ATK<br><input id="fgo_grail_120_atk"></label>
+            <label>Lv.120 Grail HP<br><input id="fgo_grail_120_hp"></label>
+          </div>
+          <div class="grid five">
+            <label>Star Absorption<br><input id="fgo_star_absorption"></label>
+            <label>Star Generation %<br><input id="fgo_star_generation"></label>
+            <label>NP Charge Attack %<br><input id="fgo_np_charge_attack"></label>
+            <label>NP Charge DEF %<br><input id="fgo_np_charge_def"></label>
+            <label>Death Chance %<br><input id="fgo_death_chance"></label>
+          </div>
+          <label>Traits<br><textarea id="fgo_traits" rows="3" placeholder="Humanoid, Divine..."></textarea></label>
+          <div class="card-list-picker" data-fgo-section>
+            <h3>Card List</h3>
+            <input type="url" id="fgo_card_list" placeholder="Image URL for card list" />
+            <div id="card-list-preview" style="margin-top:0.5rem;"></div>
+          </div>
+          <div class="hit-counts" data-fgo-section>
+            <h3>Hit Counts</h3>
+            <div class="grid four">
+              <label>Quick Hits<br><input id="fgo_hits_quick"></label>
+              <label>Arts Hits<br><input id="fgo_hits_arts"></label>
+              <label>Buster Hits<br><input id="fgo_hits_buster"></label>
+              <label>Extra Hits<br><input id="fgo_hits_extra"></label>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section class="panel">
-      <h2>Features</h2>
-      <ul>
-        <li>FGO Mode toggle with stats, hits, and card list image.</li>
-        <li>Dynamic skill and NP scaling tables; NP Type support.</li>
-        <li>Scroll-friendly modals for tall content.</li>
-        <li>Export to PNG/JPEG/PDF on the web; PNG/PDF offline.</li>
-      </ul>
-    </section>
+      <section class="panel" id="conversation-panel">
+        <h2>Conversation Lines</h2>
+        <div id="conversation-items" class="conversation-list"></div>
+        <button type="button" class="add-item" id="add-conversation">+ Add Conversation</button>
+      </section>
+
+      <section class="panel" id="skills-class-panel">
+        <h2>Class Skills</h2>
+        <div class="skills-list" id="class-skills-list"></div>
+        <button type="button" class="add-item" data-scope="class" id="add-class-skill">+ Add Class Skill</button>
+        <p class="helper" data-fgo-only style="display:none; font-size:0.7rem; opacity:0.8;">Passive skills may include gameplay notes in FGO Mode.</p>
+      </section>
+
+      <section class="panel" id="skills-personal-panel">
+        <h2>Personal Skills</h2>
+        <div class="skills-list" id="personal-skills-list"></div>
+        <button type="button" class="add-item" data-scope="personal" id="add-personal-skill">+ Add Personal Skill</button>
+        <p class="helper" data-fgo-only style="display:none; font-size:0.7rem; opacity:0.8;">Active skills can define gameplay and level scaling.</p>
+      </section>
+
+      <section class="panel" id="nps-panel">
+        <h2>Noble Phantasm(s)</h2>
+        <div class="nps-list" id="np-list"></div>
+        <button type="button" class="add-item" id="add-np">+ Add Noble Phantasm</button>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" id="generate-sheet">Generate Sheet</button>
+        <button type="button" id="export-png">Export PNG</button>
+        <button type="button" id="export-pdf">Export PDF</button>
+        <button type="button" id="clear-all">Clear</button>
+      </div>
+    </form>
+
+    <div class="panel" id="output-panel" style="margin-top:1.5rem;">
+      <h2>Preview</h2>
+      <div id="sheet" class="sheet" aria-live="polite"></div>
+    </div>
   </main>
 </body>
+<!-- Export libs for client-side export -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="static/js/pages_app.js"></script>
 </html>
