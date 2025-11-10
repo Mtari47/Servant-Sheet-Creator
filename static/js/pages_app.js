@@ -258,6 +258,7 @@
           <div class="image-mode np-image-mode"><label><input type="radio" name="np_image_mode" value="url" checked> From URL</label> <label><input type="radio" name="np_image_mode" value="file"> Upload</label></div>
           <div class="np-url"><input type="url" class="inp-url" placeholder="https://.../np.png" style="width:100%"></div>
           <div class="np-file" style="display:none;"><input type="file" class="inp-file" accept="image/*"></div>
+          <div class="np-preview" style="display:none; margin-top:.5rem;"></div>
           <label>Description<br><textarea rows="4" class="inp-desc"></textarea></label>
           <div class="fgo-np-effects" data-fgo-only style="${fgoMode?'':'display:none;'}">
             <label>NP Effects<br><textarea rows="3" class="inp-effects"></textarea></label>
@@ -284,6 +285,38 @@
     const typeSel = dialog.querySelector('.inp-type');
     const typeOtherWrap = dialog.querySelector('.type-other');
     typeSel.addEventListener('change', ()=>{ typeOtherWrap.style.display = (typeSel.value==='Other')?'':'none'; });
+
+    // NP image mode logic (URL or File) with live preview
+    const npModeRadios = dialog.querySelectorAll("input[name='np_image_mode']");
+    const npUrlWrap = dialog.querySelector('.np-url');
+    const npFileWrap = dialog.querySelector('.np-file');
+    const npUrlInput = dialog.querySelector('.inp-url');
+    const npFileInput = dialog.querySelector('.inp-file');
+    const npPreview = dialog.querySelector('.np-preview');
+    let npFileObjectUrl = '';
+    function revokeNpFileUrl(){ if (npFileObjectUrl){ URL.revokeObjectURL(npFileObjectUrl); npFileObjectUrl=''; } }
+    function updateNpPreview(){
+      const mode = dialog.querySelector("input[name='np_image_mode']:checked").value;
+      if (mode==='url'){
+        revokeNpFileUrl();
+        const v = (npUrlInput.value||'').trim();
+        if (v){ npPreview.innerHTML = `<img src="${escAttr(v)}" alt="NP Image" style="max-width:160px; border:1px solid var(--panel-border); border-radius:4px;"/>`; npPreview.style.display='block'; }
+        else { npPreview.style.display='none'; npPreview.innerHTML=''; }
+      } else {
+        const f = npFileInput.files && npFileInput.files[0];
+        if (f){ revokeNpFileUrl(); npFileObjectUrl = URL.createObjectURL(f); npPreview.innerHTML = `<img src="${escAttr(npFileObjectUrl)}" alt="NP Image" style="max-width:160px; border:1px solid var(--panel-border); border-radius:4px;"/>`; npPreview.style.display='block'; }
+        else { npPreview.style.display='none'; npPreview.innerHTML=''; }
+      }
+    }
+    npModeRadios.forEach(r=> r.addEventListener('change', ()=>{
+      const mode = r.value;
+      const isUrl = dialog.querySelector("input[name='np_image_mode']:checked").value === 'url';
+      npUrlWrap.style.display = isUrl ? '' : 'none';
+      npFileWrap.style.display = isUrl ? 'none' : '';
+      updateNpPreview();
+    }));
+    npUrlInput && npUrlInput.addEventListener('input', updateNpPreview);
+    npFileInput && npFileInput.addEventListener('change', updateNpPreview);
 
     const pre = dialog.querySelector('tbody.pre');
     const post = dialog.querySelector('tbody.post');
@@ -314,12 +347,14 @@
         return { label: (labelCell?.textContent||'').trim(), values: cells.map(td => (td.textContent||'').trim()) };
       }
 
-      const el = document.createElement('div');
-      el.className='np-card';
-      const imgHtml = mode==='url' && url ? `<div class=\"np-icon\"><img src=\"${escAttr(url)}\" alt=\"\"></div>` : '';
+  const el = document.createElement('div');
+  el.className='np-card';
+  const imgSrc = (mode==='url' && url) ? url : (mode==='file' && file.files && file.files[0]) ? (npFileObjectUrl || URL.createObjectURL(file.files[0])) : '';
+  if (mode==='file' && file.files && file.files[0] && !npFileObjectUrl){ npFileObjectUrl = imgSrc; }
+  const imgHtml = imgSrc ? `<div class=\"np-icon\"><img src=\"${escAttr(imgSrc)}\" alt=\"\"></div>` : '';
       el.innerHTML = `${imgHtml}<div class=\"np-info\"><div class=\"np-title-rank\"><strong>${escHtml(title||'(Untitled NP)')}</strong> ${rank?`<span class=\"rank\">(${escHtml(rank)})</span>`:''} ${type?`<span class=\"np-type\">[${escHtml(type)}]</span>`:''}</div><div class=\"np-desc\">${escHtml(desc)}</div>${fgoMode && effects?`<div class=\"np-effects\"><em>${escHtml(effects)}</em></div>`:''}</div>`;
       const rm=document.createElement('button'); rm.type='button'; rm.className='remove'; rm.textContent='×'; rm.addEventListener('click', ()=> el.remove()); el.appendChild(rm);
-      el.__data = { title, rank, np_type: type, description: desc, effects, levels: { pre: preRows, overcharge: over, post: postRows }, image_url: (mode==='url'?url:'') };
+      el.__data = { title, rank, np_type: type, description: desc, effects, levels: { pre: preRows, overcharge: over, post: postRows }, image_url: imgSrc };
       npList.appendChild(el);
       close();
     });
