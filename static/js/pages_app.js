@@ -107,6 +107,8 @@
   const portraitPreview = $('#portrait-preview');
   const portraitUrlWrap = $('#portrait-url-wrapper');
   const portraitFileWrap = $('#portrait-file-wrapper');
+  // Keep a base64 data URL for portrait file uploads so export can embed the image reliably
+  let portraitDataUrl = '';
   $$("input[name='portrait_mode']").forEach(r => r.addEventListener('change', () => {
     const mode = $(`input[name='portrait_mode']:checked`).value;
     if (mode === 'url'){
@@ -116,7 +118,12 @@
     } else {
       portraitUrlWrap.style.display='none';
       portraitFileWrap.style.display='';
-      portraitPreview.style.display='none';
+      if (portraitDataUrl){
+        portraitPreview.src = portraitDataUrl;
+        portraitPreview.style.display='inline-block';
+      } else {
+        portraitPreview.style.display='none';
+      }
     }
   }));
   function updatePortraitPreview(){
@@ -125,6 +132,19 @@
     else { portraitPreview.style.display='none'; }
   }
   portraitUrl && portraitUrl.addEventListener('input', updatePortraitPreview);
+  // Read local portrait file as data URL
+  portraitFile && portraitFile.addEventListener('change', () => {
+    portraitDataUrl = '';
+    const f = portraitFile.files && portraitFile.files[0];
+    if (!f){ portraitPreview.style.display='none'; return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      portraitDataUrl = e.target.result;
+      portraitPreview.src = portraitDataUrl;
+      portraitPreview.style.display='inline-block';
+    };
+    reader.readAsDataURL(f);
+  });
 
   // Conversation lines
   const convWrap = $('#conversation-items');
@@ -309,19 +329,26 @@
     const npUrlInput = dialog.querySelector('.inp-url');
     const npFileInput = dialog.querySelector('.inp-file');
     const npPreview = dialog.querySelector('.np-preview');
-    let npFileObjectUrl = '';
-    function revokeNpFileUrl(){ if (npFileObjectUrl){ URL.revokeObjectURL(npFileObjectUrl); npFileObjectUrl=''; } }
+    let npFileDataUrl = '';
+    function clearNpFile(){ npFileDataUrl=''; }
     function updateNpPreview(){
       const mode = dialog.querySelector("input[name='np_image_mode']:checked").value;
       if (mode==='url'){
-        revokeNpFileUrl();
+        clearNpFile();
         const v = (npUrlInput.value||'').trim();
         if (v){ npPreview.innerHTML = `<img src="${escAttr(v)}" alt="NP Image" style="max-width:160px; border:1px solid var(--panel-border); border-radius:4px;"/>`; npPreview.style.display='block'; }
         else { npPreview.style.display='none'; npPreview.innerHTML=''; }
       } else {
         const f = npFileInput.files && npFileInput.files[0];
-        if (f){ revokeNpFileUrl(); npFileObjectUrl = URL.createObjectURL(f); npPreview.innerHTML = `<img src="${escAttr(npFileObjectUrl)}" alt="NP Image" style="max-width:160px; border:1px solid var(--panel-border); border-radius:4px;"/>`; npPreview.style.display='block'; }
-        else { npPreview.style.display='none'; npPreview.innerHTML=''; }
+        if (f){
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            npFileDataUrl = e.target.result;
+            npPreview.innerHTML = `<img src="${escAttr(npFileDataUrl)}" alt="NP Image" style="max-width:160px; border:1px solid var(--panel-border); border-radius:4px;"/>`;
+            npPreview.style.display='block';
+          };
+          reader.readAsDataURL(f);
+        } else { npPreview.style.display='none'; npPreview.innerHTML=''; npFileDataUrl=''; }
       }
     }
     npModeRadios.forEach(r=> r.addEventListener('change', ()=>{
@@ -365,8 +392,7 @@
 
   const el = document.createElement('div');
   el.className='np-card';
-  const imgSrc = (mode==='url' && url) ? url : (mode==='file' && file.files && file.files[0]) ? (npFileObjectUrl || URL.createObjectURL(file.files[0])) : '';
-  if (mode==='file' && file.files && file.files[0] && !npFileObjectUrl){ npFileObjectUrl = imgSrc; }
+  const imgSrc = (mode==='url' && url) ? url : (mode==='file' && file.files && file.files[0]) ? (npFileDataUrl || '') : '';
   const imgHtml = imgSrc ? `<div class=\"np-icon\"><img src=\"${escAttr(imgSrc)}\" alt=\"\"></div>` : '';
       el.innerHTML = `${imgHtml}<div class=\"np-info\"><div class=\"np-title-rank\"><strong>${escHtml(title||'(Untitled NP)')}</strong> ${rank?`<span class=\"rank\">(${escHtml(rank)})</span>`:''} ${type?`<span class=\"np-type\">[${escHtml(type)}]</span>`:''}</div><div class=\"np-desc\">${escHtml(desc)}</div>${fgoMode && effects?`<div class=\"np-effects\"><em>${escHtml(effects)}</em></div>`:''}</div>`;
       const rm=document.createElement('button'); rm.type='button'; rm.className='remove'; rm.textContent='×'; rm.addEventListener('click', ()=> el.remove()); el.appendChild(rm);
@@ -392,7 +418,8 @@
 
   async function exportImage(type){
     const el = $('#sheet');
-    const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 });
+    await ensureImagesReady(el);
+    const canvas = await html2canvas(el, { backgroundColor: null, scale: 2, useCORS: true });
     const mime = type==='jpeg'?'image/jpeg':'image/png';
     const data = canvas.toDataURL(mime);
     const a = document.createElement('a');
@@ -402,7 +429,8 @@
   }
   async function exportPdf(){
     const el = $('#sheet');
-    const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 });
+    await ensureImagesReady(el);
+    const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -420,6 +448,18 @@
       break;
     }
     pdf.save('servant-sheet.pdf');
+  }
+
+  // Ensure all images in the sheet are fully loaded before capture
+  function ensureImagesReady(root){
+    const imgs = Array.from(root.querySelectorAll('img'));
+    const pending = imgs.filter(img => !img.complete || img.naturalWidth === 0);
+    if (!pending.length) return Promise.resolve();
+    return Promise.all(pending.map(img => img.decode ? img.decode().catch(()=>{}) : new Promise(res => {
+      if (img.complete) return res();
+      img.addEventListener('load', res, { once: true });
+      img.addEventListener('error', res, { once: true });
+    })));
   }
 
   // Clear
@@ -459,9 +499,7 @@
   function collectPortraitUrl(){
     const mode = $(`input[name='portrait_mode']:checked`).value;
     if (mode==='url'){ return $('#portrait-url').value.trim(); }
-    const f = portraitFile.files && portraitFile.files[0];
-    if (!f) return '';
-    return URL.createObjectURL(f);
+    return portraitDataUrl || '';
   }
   function collectConversations(){
     return $$('#conversation-items .conversation-item').map(it => ({
@@ -512,7 +550,7 @@
 
     const header = `
       <div class="sheet-header">
-        ${s.image_url?`<div class="sheet-image"><img src="${escAttr(s.image_url)}" alt="Servant Image"/></div>`:''}
+  ${s.image_url?`<div class="sheet-image"><img src="${escAttr(s.image_url)}" alt="Servant Image" crossOrigin="anonymous"/></div>`:''}
         <div class="sheet-basic">
           <h2 class="servant-name">${esc(s.name||'Unnamed Servant')}</h2>
           <div class="meta grid three">
@@ -562,7 +600,7 @@
     function renderSkill(sk, fgo, isPersonal=false){
       const gameplay = fgo && sk.gameplay ? `<div class="gameplay"><em>${esc(sk.gameplay)}</em></div>` : '';
       const levels = fgo && isPersonal && sk.levels && sk.levels.length ? renderSkillLevels(sk.levels) : '';
-      const icon = sk.image_url?`<div class="icon"><img src="${escAttr(sk.image_url)}" alt=""></div>`:'<div class="icon"></div>';
+  const icon = sk.image_url?`<div class="icon"><img src="${escAttr(sk.image_url)}" alt="" crossOrigin="anonymous"></div>`:'<div class="icon"></div>';
       return `<div class="skill-card">${icon}<div class="info"><div class="title"><strong>${esc(sk.title)}</strong></div><div class="desc">${esc(sk.description)}</div>${gameplay}${levels}</div></div>`;
     }
     function renderSkillLevels(rows){
@@ -577,7 +615,7 @@
         `${post.length?`<tbody>${post.map(r=>`<tr><th>${esc(r.label)}</th>${r.values.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody>`:''}`+
         `</table>`
         : '';
-      return `<div class="np-card">${np.image_url?`<div class=\"np-icon\"><img src=\"${escAttr(np.image_url)}\" alt=\"\"></div>`:''}<div class="np-info"><div class="np-title-rank"><strong>${esc(np.title)}</strong>${np.rank?` <span class=\"rank\">(${esc(np.rank)})</span>`:''}${np.np_type?` <span class=\"np-type\">[${esc(np.np_type)}]</span>`:''}</div><div class="np-desc">${esc(np.description)}</div>${fgo && np.effects?`<div class=\"np-effects\"><em>${esc(np.effects)}</em></div>`:''}${scaling}</div></div>`;
+  return `<div class="np-card">${np.image_url?`<div class=\"np-icon\"><img src=\"${escAttr(np.image_url)}\" alt=\"\" crossOrigin=\"anonymous\"></div>`:''}<div class="np-info"><div class="np-title-rank"><strong>${esc(np.title)}</strong>${np.rank?` <span class=\"rank\">(${esc(np.rank)})</span>`:''}${np.np_type?` <span class=\"np-type\">[${esc(np.np_type)}]</span>`:''}</div><div class="np-desc">${esc(np.description)}</div>${fgo && np.effects?`<div class=\"np-effects\"><em>${esc(np.effects)}</em></div>`:''}${scaling}</div></div>`;
     }
     function renderFgo(s){
       const g=s.fgo||{}; const hits=g.hits||{};
@@ -590,7 +628,7 @@
           <tr><th>Death Chance %</th><td colspan="3">${esc(g.death_chance)}</td></tr>
         </tbody></table>
         ${g.traits?`<div class="fgo-traits"><strong>Traits:</strong> ${esc(g.traits)}</div>`:''}
-        ${g.card_list?`<div class="fgo-card-list"><strong>Card List:</strong> <img src="${escAttr(g.card_list)}" alt="Card List" class="card-list-img"/></div>`:''}
+  ${g.card_list?`<div class="fgo-card-list"><strong>Card List:</strong> <img src="${escAttr(g.card_list)}" alt="Card List" class="card-list-img" crossOrigin="anonymous"/></div>`:''}
         <div class="fgo-hits"><strong>Hit Counts:</strong> Q ${esc(hits.quick)} / A ${esc(hits.arts)} / B ${esc(hits.buster)} / Ex ${esc(hits.extra)}</div>
       </div>`;
     }
