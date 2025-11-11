@@ -477,6 +477,7 @@
   servant_class: (()=>{ const v=(classSelect?.value||'').trim(); return v==='Other' ? (classOtherInput?.value||'').trim() : v; })(),
   alignment: $('#alignment').value.trim(),
   hidden_attribute: (hiddenAttrSelect?.value||'').trim(),
+      rarity: $('#rarity')?.value.trim() || '',
       biography: $('#biography').value.trim(),
       image_url: collectPortraitUrl(),
       parameters: {
@@ -558,6 +559,7 @@
             <div><strong>Class:</strong> ${esc(s.servant_class)}</div>
             <div><strong>Alignment:</strong> ${esc(s.alignment)}</div>
             <div><strong>Hidden Attribute:</strong> ${esc(s.hidden_attribute)}</div>
+            ${s.rarity?`<div><strong>Rarity:</strong> ${esc(s.rarity)}</div>`:''}
           </div>
         </div>
       </div>`;
